@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const path = require('path'); // स्टैटिक फाइल्स और पेजेस दिखाने के लिए आवश्यक
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -12,7 +12,7 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.json());
 
-// आपके सभी फ्रंट-एंड HTML पेजेस को लाइव दिखाने के लिए (Cannot GET / एरर को ठीक करने हेतु)
+// स्टैटिक फाइल्स और फ्रंट-एंड पेजेस को लोड करने के लिए
 app.use(express.static(path.join(__dirname)));
 
 // MongoDB कनेक्शन
