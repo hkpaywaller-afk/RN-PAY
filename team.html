@@ -83,16 +83,16 @@
         <div class="dark-summary-card">
             <div class="summary-row-top">
                 <div class="summary-col">
-                    <span class="summary-val" id="totalTeamCommission">13386.49</span>
+                    <span class="summary-val" id="totalTeamCommission">0.00</span>
                     <span class="summary-lbl">Commission</span>
                 </div>
                 <div class="summary-col" style="text-align: right;">
-                    <span class="summary-val" id="totalTeamRecharge">4424286.04</span>
+                    <span class="summary-val" id="totalTeamRecharge">0.00</span>
                     <span class="summary-lbl">Team Recharge</span>
                 </div>
             </div>
             <div class="team-count-badge">
-                <i class="fas fa-user"></i> <span id="totalTeamCount">158</span>
+                <i class="fas fa-user"></i> <span id="totalTeamCount">1</span>
             </div>
         </div>
 
@@ -198,7 +198,7 @@
             if (currentHost === "localhost" || currentHost === "127.0.0.1") {
                 baseUrl = window.location.origin + "/register.html";
             } else {
-                baseUrl = "https://nrpay.app.com/register.html";
+                baseUrl = "https://rn-pay.onrender.com/register.html";
             }
 
             let fullLink = baseUrl + "?invite=" + savedCode;
@@ -207,7 +207,7 @@
 
         function copyInviteLink() {
             let currentHost = window.location.hostname;
-            let baseUrl = (currentHost === "localhost" || currentHost === "127.0.0.1") ? window.location.origin + "/register.html" : "https://nrpay.app.com/register.html";
+            let baseUrl = (currentHost === "localhost" || currentHost === "127.0.0.1") ? window.location.origin + "/register.html" : "https://rn-pay.onrender.com/register.html";
             let code = localStorage.getItem('user_permanent_invite_code');
             let fullLink = baseUrl + "?invite=" + code;
 
