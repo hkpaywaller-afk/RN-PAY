@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const path = require('path'); // स्टैटिक फाइल्स और पेजेस दिखाने के लिए आवश्यक
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -11,13 +12,13 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.json());
 
-// MongoDB कनेक्शन (आपके दिए गए यूआरएल और पासवर्ड के साथ)
+// आपके सभी फ्रंट-एंड HTML पेजेस को लाइव दिखाने के लिए (Cannot GET / एरर को ठीक करने हेतु)
+app.use(express.static(path.join(__dirname)));
+
+// MongoDB कनेक्शन
 const MONGO_URI = 'mongodb+srv://admin12340:Rdg04hMPtCxhLmGu@cluster0.ucnyait.mongodb.net/?appName=Cluster0';
 
-mongoose.connect(MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}).then(async () => {
+mongoose.connect(MONGO_URI).then(async () => {
     console.log('MongoDB Connected Successfully');
     await createDefaultAdminUser();
 }).catch(err => {
@@ -48,7 +49,7 @@ const User = mongoose.model('User', userSchema);
 const orderSchema = new mongoose.Schema({
     orderId: { type: String, required: true, unique: true },
     uid: { type: String, required: true },
-    type: { type: String, required: true }, // Recharge, Receive, Commission, Reward, etc.
+    type: { type: String, required: true }, 
     amount: { type: String, required: true },
     desc: { type: String, default: '' },
     bankName: { type: String, default: '' },
@@ -194,7 +195,6 @@ app.post('/api/order/submit', async (req, res) => {
 
         await newOrder.save();
 
-        // यूजर का बैलेंस अपडेट करना (अगर अमाउंट प्लस में है)
         let numericAmount = parseFloat(amount.replace(/[^0-9.-]+/g,"")) || 0;
         await User.findOneAndUpdate({ uid }, { $inc: { balance: numericAmount } });
 
