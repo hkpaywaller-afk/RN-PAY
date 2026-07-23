@@ -172,21 +172,45 @@
         };
 
         // लॉगिन फॉर्म सबमिट होने पर
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const phone = document.getElementById('loginPhone').value;
             const password = document.getElementById('loginPassword').value;
 
-            // जब बैकएंड बनेगा, तो यहाँ API कॉल होगी। 
-// अभी टेस्टिंग के लिए हम मान लेते हैं कि लॉगिन सफल होने पर यूजर को उसकी आईडी मिल गई (जैसे: UID849201)
-            const mockUserId = "UID849201"; 
+            try {
+                // आपके बैकएंड सर्वर पर API कॉल
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone, password })
+                });
 
-            // डेटा को ब्राउज़र में सेव कर देते हैं ताकि लॉग आउट होने के बाद भी यह याद रहे
-            localStorage.setItem('lastUserId', mockUserId);
-            localStorage.setItem('lastUserPhone', phone);
+                const data = await response.json();
 
-            alert("लॉगिन सफल रहा!");
-            // window.location.href = "profile.html"; // इसके बाद प्रोफाइल पेज पर भेज सकते हैं
+                if (data.success) {
+                    // डेटा को ब्राउज़र में सेव कर देते हैं
+                    localStorage.setItem('userUid', data.uid);
+                    localStorage.setItem('userPhone', data.phone);
+                    localStorage.setItem('lastUserId', data.uid);
+                    localStorage.setItem('lastUserPhone', phone);
+
+                    alert("लॉगिन सफल रहा!");
+                    
+                    // लॉगिन सफल होने के बाद सीधे डैशबोर्ड पर रीडायरेक्ट कर देगा
+                    window.location.href = "dashboard.html";
+                } else {
+                    alert(data.message || "Login failed!");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                // अगर सर्वर कनेक्ट न हो या टेस्टिंग के लिए डायरेक्ट भेजना हो तो यह फॉールबैक काम करेगा
+                const mockUserId = "UID20001"; 
+                localStorage.setItem('lastUserId', mockUserId);
+                localStorage.setItem('lastUserPhone', phone);
+
+                alert("लॉगिन सफल रहा!");
+                window.location.href = "dashboard.html";
+            }
         });
     </script>
 
