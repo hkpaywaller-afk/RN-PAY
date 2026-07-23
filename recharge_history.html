@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HoyoPay - Recharge History</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #f7f7f7; padding-bottom: 90px; color: #111; }
+        
+        .header { background: #fff; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eaeaea; position: sticky; top: 0; z-index: 100; }
+        .header-left { display: flex; align-items: center; gap: 12px; font-size: 18px; font-weight: bold; }
+        .header-left a { color: #111; text-decoration: none; }
+        
+        /* मेन करेंसी टैब (USDT / INR) */
+        .currency-tabs { display: flex; background: #fff; border-bottom: 1px solid #eaeaea; }
+        .curr-tab { flex: 1; text-align: center; padding: 12px; font-weight: bold; font-size: 15px; color: #777; cursor: pointer; border-bottom: 2px solid transparent; }
+        .curr-tab.active { color: #111; border-bottom-color: #111; }
+
+        /* स्टेटस सब-टैब (All, In Payment, Success, Timeout, Cancel) */
+        .status-tabs { display: flex; background: #fff; padding: 12px 15px; gap: 20px; overflow-x: auto; border-bottom: 1px solid #f1f1f1; white-space: nowrap; }
+        .status-tab { font-size: 14px; font-weight: 500; color: #888; cursor: pointer; position: relative; padding-bottom: 4px; }
+        .status-tab.active { color: #111; font-weight: bold; }
+        .status-tab.active::after { content: ''; position: absolute; bottom: -12px; left: 0; width: 100%; height: 2px; background: #111; display: none; }
+
+        /* बैनर नोटिस */
+        .notice-banner { width: 92%; max-width: 500px; margin: 12px auto 5px auto; background: #ede9fe; padding: 10px 14px; border-radius: 10px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: #3b0764; font-weight: 500; }
+
+        /* लिस्ट कंटेनर */
+        .history-container { width: 92%; max-width: 500px; margin: 10px auto; display: flex; flex-direction: column; gap: 10px; }
+        
+        /* कार्ड डिजाइन (स्क्रीनशॉट के अनुसार) */
+        .history-card { background: #fff; padding: 16px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); display: flex; flex-direction: column; gap: 8px; cursor: pointer; border: 1px solid #f0f0f0; }
+        
+        .card-row-1 { display: flex; justify-content: space-between; align-items: center; }
+        .card-amount-title { font-size: 17px; font-weight: bold; color: #111; display: flex; align-items: center; gap: 8px; }
+        
+        /* बैज स्टाइल */
+        .badge { padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+        .badge.pending, .badge.in-payment { background: #ffedd5; color: #c2410c; }
+        .badge.success { background: #ccfbf1; color: #0d9488; }
+        .badge.cancel { background: #fee2e2; color: #dc2626; }
+        .badge.timeout { background: #fee2e2; color: #dc2626; }
+
+        .card-row-2 { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #777; }
+        .income-label { color: #888; font-size: 12px; }
+        .income-val { font-weight: bold; color: #333; font-size: 14px; }
+        
+        .quota-label { color: #888; font-size: 12px; }
+        .quota-val { font-weight: bold; color: #0d9488; font-size: 14px; }
+
+        .card-row-3 { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #888; border-top: 1px solid #f9f9f9; padding-top: 6px; margin-top: 2px; }
+        
+        /* बॉटम नेविगेशन */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 70px; background-color: white; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); border-top: 1px solid #f0f0f0; z-index: 1000; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #888; text-decoration: none; font-size: 11px; cursor: pointer; }
+        .nav-item.active { color: #111; font-weight: bold; }
+        .nav-item i { font-size: 18px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-left">
+            <a href="dashboard.html"><i class="fas fa-arrow-left"></i></a>
+            <span>Recharge History</span>
+        </div>
+        <div><i class="fas fa-history" style="font-size: 18px; color: #333;"></i></div>
+    </div>
+
+    <!-- करेंसी टैब -->
+    <div class="currency-tabs">
+        <div class="curr-tab" onclick="switchCurrency('USDT')">USDT</div>
+        <div class="curr-tab active" onclick="switchCurrency('INR')">INR</div>
+    </div>
+
+    <!-- स्टेटस सब-टैब -->
+    <div class="status-tabs">
+        <div class="status-tab active" onclick="filterStatus('all')">All</div>
+        <div class="status-tab" onclick="filterStatus('pending')">In Payment</div>
+        <div class="status-tab" onclick="filterStatus('success')">Success</div>
+        <div class="status-tab" onclick="filterStatus('timeout')">Timeout</div>
+        <div class="status-tab" onclick="filterStatus('cancel')">Cancel</div>
+    </div>
+
+    <!-- बैनर नोटिस -->
+    <div class="notice-banner">
+        <i class="fas fa-coins" style="font-size: 15px; color: #f59e0b;"></i>
+        <span>Complete a task to earn Commission and Bonus</span>
+    </div>
+
+    <div class="history-container" id="historyList">
+        <!-- डेटा जावास्क्रिप्ट से लोड होगा -->
+    </div>
+
+    <!-- बॉटम नेविगेशन -->
+    <nav class="bottom-nav">
+        <a href="dashboard.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="deposit.html" class="nav-item">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Deposit</span>
+        </a>
+        <a href="bank.html" class="nav-item">
+            <i class="fas fa-university"></i>
+            <span>Bank</span>
+        </a>
+        <a href="team.html" class="nav-item">
+            <i class="fas fa-users"></i>
+            <span>Team</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>Me</span>
+        </a>
+    </nav>
+
+    <script>
+        let currentCurr = 'INR';
+        let currentStatus = 'all';
+
+        // डमी डेटा (स्क्रीनशॉट के पैटर्न पर)
+        const historyData = [
+            { id: 'ORD9921', type: 'INR', amount: '1080 RS', income: '43.2', quota: '+1123.2', status: 'success', utr: '618818979189', time: '2026-07-23 15:30' },
+            { id: 'ORD8842', type: 'USDT', amount: '50 USDT', income: '2.0', quota: '+52.0', status: 'success', utr: 'USDT-TRX-9841', time: '2026-07-23 14:10' },
+            { id: 'ORD7731', type: 'INR', amount: '2000 RS', income: '80', quota: '+2080', status: 'cancel', utr: '', time: '2026-07-23 12:00' },
+            { id: 'ORD6619', type: 'USDT', amount: '20 USDT', income: '0.8', quota: '+20.8', status: 'timeout', utr: '', time: '2026-07-22 18:45' },
+            { id: 'ORD5510', type: 'INR', amount: '900 RS', income: '36', quota: '+936', status: 'pending', utr: '618718286391', time: '2026-07-22 10:20' }
+        ];
+
+        function switchCurrency(curr) {
+            currentCurr = curr;
+            document.querySelectorAll('.curr-tab').forEach(el => el.classList.remove('active'));
+            event.target.classList.add('active');
+            renderList();
+        }
+
+        function filterStatus(status) {
+            currentStatus = status;
+            document.querySelectorAll('.status-tab').forEach(el => el.classList.remove('active'));
+            event.target.classList.add('active');
+            renderList();
+        }
+
+        function renderList() {
+            const container = document.getElementById('historyList');
+            container.innerHTML = '';
+
+            let filtered = historyData.filter(item => {
+                let matchCurr = item.type === currentCurr;
+                let matchStat = currentStatus === 'all' || item.status === currentStatus;
+                return matchCurr && matchStat;
+            });
+
+            if(filtered.length === 0) {
+                container.innerHTML = `<div style="text-align:center; color:#888; margin-top:40px; font-size:14px;">कोई रिकॉर्ड नहीं मिला</div>`;
+                return;
+            }
+
+            filtered.forEach(item => {
+                let card = document.createElement('div');
+                card.className = `history-card`;
+                
+                // लॉजिक: पेंडिंग, कैंसिल या टाइमआउट किसी पर भी क्लिक करने पर टास्क डिटेल्स पेज खुलेगा जैसा स्क्रीनशॉट में है
+                card.onclick = () => {
+                    let cleanAmount = item.amount.replace(/[^0-9]/g,'');
+                    if(item.type === 'INR') {
+                        window.location.href = `task_details_inr.html?id=${item.id}&amount=${cleanAmount}`;
+                    } else {
+                        window.location.href = `task_details_usdt.html?id=${item.id}&amount=${cleanAmount}`;
+                    }
+                };
+
+                let statusText = item.status === 'pending' ? 'In Payment' : (item.status.charAt(0).toUpperCase() + item.status.slice(1));
+                let rightSideContent = '';
+
+                if(item.status === 'success') {
+                    rightSideContent = `<span style="font-size: 13px; font-weight: 500; color: #333;">UTR:${item.utr}</span>`;
+                } else {
+                    // Timeout या Cancel या In Payment होने पर दाईं तरफ तीर का आइकॉन या UTR दिखेगा
+                    rightSideContent = `<div style="display: flex; align-items: center; gap: 8px;"><span style="font-size: 12px; color: #555;">${item.utr ? 'UTR:'+item.utr : ''}</span><i class="fas fa-chevron-right" style="font-size: 12px; color: #aaa;"></i></div>`;
+                }
+
+                card.innerHTML = `
+                    <div class="card-row-1">
+                        <div class="card-amount-title">
+                            <span>${item.amount}</span>
+                            <span class="badge ${item.status}">${statusText}</span>
+                        </div>
+                        ${rightSideContent}
+                    </div>
+                    <div class="card-row-2">
+                        <div>
+                            <span class="income-label">Income</span><br>
+                            <span class="income-val">${item.income}</span>
+                        </div>
+                        <div style="text-align: right;">
+                            <span class="quota-label">Quota</span><br>
+                            <span class="quota-val">${item.quota}</span>
+                        </div>
+                    </div>
+                    <div class="card-row-3">
+                        <span>Time: ${item.time}</span>
+                        <span>${item.type} Recharge</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        window.onload = renderList;
+    </script>
+</body>
+</html>

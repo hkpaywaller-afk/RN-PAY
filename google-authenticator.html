@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Authentication</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #f7f7f7; color: #111; padding-bottom: 40px; }
+
+        /* हेडर */
+        .header { background: #fff; padding: 16px 20px; display: flex; align-items: center; border-bottom: 1px solid #f0f0f0; position: sticky; top: 0; z-index: 100; }
+        .back-btn { font-size: 18px; color: #111; text-decoration: none; margin-right: 15px; }
+        .header-title { font-size: 17px; font-weight: 600; flex: 1; text-align: center; margin-right: 28px; }
+
+        .container { width: 92%; max-width: 480px; margin: 20px auto; display: flex; flex-direction: column; align-items: center; gap: 20px; background: #fff; padding: 25px 20px; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+
+        /* गूगल लोगो */
+        .ga-logo { font-size: 32px; display: flex; gap: 4px; justify-content: center; margin-bottom: -5px; }
+        
+        .instruction-text { font-size: 13px; color: #666; text-align: center; line-height: 1.5; padding: 0 10px; }
+
+        /* QR कोड बॉक्स */
+        .qr-box { width: 180px; height: 180px; background: #fff; padding: 10px; border: 1px solid #eee; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+        .qr-box img { width: 100%; height: 100%; object-fit: contain; }
+
+        /* डाउनलोड बटन */
+        .download-btn { width: 100%; background: #fb923c; color: white; padding: 14px; border-radius: 10px; font-weight: 600; font-size: 15px; text-decoration: none; text-align: center; border: none; cursor: pointer; transition: 0.2s; }
+        .download-btn:active { background: #f97316; }
+
+        /* की (Key) सेक्शन */
+        .key-row { width: 100%; display: flex; align-items: center; justify-content: space-between; background: #fafafa; border: 1px solid #eee; padding: 10px 14px; border-radius: 8px; font-size: 13px; color: #333; }
+        .key-text { font-family: monospace; font-weight: 600; font-size: 12px; color: #111; word-break: break-all; margin-right: 10px; }
+        .copy-key-btn { background: none; border: none; color: #666; cursor: pointer; font-size: 16px; padding: 4px; }
+
+        /* कोड इनपुट सेक्शन */
+        .input-group { width: 100%; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+        .input-group label { font-size: 15px; font-weight: 600; color: #111; }
+        .code-input { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 10px; font-size: 15px; outline: none; background: #fafafa; }
+        .code-input:focus { border-color: #111; background: #fff; }
+
+        /* बाइंड बटन */
+        .bind-btn { width: 100%; background: #6b7280; color: white; padding: 15px; border-radius: 25px; font-weight: 600; font-size: 16px; border: none; cursor: pointer; text-align: center; margin-top: 10px; transition: 0.2s; }
+        .bind-btn.active { background: #111; }
+    </style>
+</head>
+<body>
+
+    <!-- हेडर -->
+    <div class="header">
+        <a href="profile.html" class="back-btn"><i class="fas fa-chevron-left"></i></a>
+        <div class="header-title">Google Authentication</div>
+    </div>
+
+    <div class="container">
+        <!-- गूगल ऑथेंटिकेटर लोगो (रंगीन स्टार) -->
+        <div class="ga-logo">
+            <i class="fas fa-asterisk" style="color: #4285F4;"></i>
+            <i class="fas fa-asterisk" style="color: #EA4335;"></i>
+            <i class="fas fa-asterisk" style="color: #FBBC05;"></i>
+            <i class="fas fa-asterisk" style="color: #34A853;"></i>
+        </div>
+
+        <div class="instruction-text">
+            Scan the QR code with Google Authenticator app or enter the key manually
+        </div>
+
+        <!-- क्यूआर कोड (डायनेमिक जेनरेटेड) -->
+        <div class="qr-box" id="qrcodeContainer">
+            <!-- यहाँ QR कोड इमेज या जनरेटेड कैनवास आएगा -->
+        </div>
+
+        <!-- डाउनलोड गूगल ऑथेंटिकेटर बटन -->
+        <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2" target="_blank" class="download-btn">
+            Download Google Authenticator
+        </a>
+
+        <!-- सीक्रेट की (Key) -->
+        <div class="key-row">
+            <div>Key: <span class="key-text" id="secretKeyDisplay">I5S3IVHC2TR44ZHKD7CNNZGNLJWQGJC4</span></div>
+            <button class="copy-key-btn" onclick="copySecretKey()"><i class="far fa-copy"></i></button>
+        </div>
+
+        <!-- कोड इनपुट -->
+        <div class="input-group">
+            <label>Code:</label>
+            <input type="text" class="code-input" id="authCodeInput" placeholder="Enter Google Authenticator code" oninput="checkInputCode()">
+        </div>
+
+        <!-- बाइंड बटन -->
+        <button class="bind-btn" id="bindBtn" onclick="bindAuthenticator()">Bind</button>
+    </div>
+
+    <!-- QR कोड जनरेट करने के लिए qrious लाइब्रेरी का उपयोग कर रहे हैं ताकि हर बार यूजर का अलग की बने -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <script>
+        window.onload = function() {
+            generateUniqueKeyForUser();
+        };
+
+        // हर यूजर के लिए अलग और परमानेंट सीक्रेट की बनाने का लॉजिक
+        function generateUniqueKeyForUser() {
+            let userKey = localStorage.getItem('hoyo_ga_secret_key');
+            if (!userKey) {
+                // रैंडम बेस32 जैसी स्ट्रिंग जेनरेट करना अगर पहले से न हो
+                const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+                let randomKey = "";
+                for (let i = 0; i < 32; i++) {
+                    randomKey += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                userKey = randomKey;
+                localStorage.setItem('hoyo_ga_secret_key', userKey);
+            }
+
+            // स्क्रीन पर की दिखाना
+            document.getElementById('secretKeyDisplay').innerText = userKey;
+
+            // उस की के हिसाब से QR कोड बनाना (Google Authenticator otpauth URI फॉर्मेट)
+            let accountName = localStorage.getItem('hoyo_user_phone') || "HoyoUser";
+            let otpAuthUrl = `otpauth://totp/HoyoPay:${accountName}?secret=${userKey}&issuer=HoyoPay`;
+
+            let qrContainer = document.getElementById('qrcodeContainer');
+            qrContainer.innerHTML = ""; // पुराना साफ़ करें
+            
+            let qrCanvas = document.createElement('canvas');
+            qrContainer.appendChild(qrCanvas);
+
+            new QRious({
+                element: qrCanvas,
+                value: otpAuthUrl,
+                size: 160
+            });
+        }
+
+        // की कॉपी करने का फंक्शन
+        function copySecretKey() {
+            let keyText = document.getElementById('secretKeyDisplay').innerText;
+            navigator.clipboard.writeText(keyText).then(() => {
+                alert('Key copied: ' + keyText);
+            });
+        }
+
+        // इनपुट में कोड टाइप होने पर बाइंड बटन को एक्टिव (डार्क) करना
+        function checkInputCode() {
+            let val = document.getElementById('authCodeInput').value;
+            let btn = document.getElementById('bindBtn');
+            if (val.trim().length > 0) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        }
+
+        // बाइंड बटन क्लिक होने पर वेरिफिकेशन
+        function bindAuthenticator() {
+            let codeVal = document.getElementById('authCodeInput').value.trim();
+            if (codeVal.length < 6) {
+                alert('Please enter a valid 6-digit Google Authenticator code.');
+                return;
+            }
+
+            // सफलता का संदेश और सेव करना
+            localStorage.setItem('hoyo_ga_bound', 'true');
+            alert('Google Authenticator bound successfully!');
+            window.location.href = 'profile.html';
+        }
+    </script>
+</body>
+</html>

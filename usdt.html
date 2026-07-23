@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HoyoPay - USDT Deposit</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #f7f7f7; padding-bottom: 90px; }
+        .top-tabs-container { display: flex; background-color: #f7f7f7; padding: 15px 20px 10px 20px; gap: 25px; border-bottom: 1px solid #eaeaea; }
+        .top-tab { font-size: 20px; font-weight: bold; color: #888; cursor: pointer; text-decoration: none; }
+        .top-tab.active { color: #111; position: relative; }
+        .top-tab.active::after { content: ''; position: absolute; bottom: -10px; left: 0; width: 100%; height: 3px; background-color: #111; border-radius: 2px; }
+        .reward-info-box { width: 90%; margin: 15px auto; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); display: flex; justify-content: space-between; align-items: center; }
+        .reward-text-left { font-size: 14px; font-weight: bold; color: #111; }
+        .reward-text-left span { color: #eab308; }
+        .how-buy-btn { font-size: 13px; color: #333; cursor: pointer; background: none; border: none; display: flex; align-items: center; gap: 6px; font-weight: 500; }
+        .how-buy-btn i { font-size: 16px; color: #111; }
+        .ratio-banner { width: 90%; margin: 0 auto 15px auto; background: #fffbeb; border: 1px solid #fef3c7; padding: 10px 15px; border-radius: 8px; font-size: 13px; font-weight: bold; color: #92400e; display: flex; justify-content: space-between; align-items: center; }
+        .filter-section { width: 90%; margin: 0 auto 15px auto; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+        .sort-dropdown-box { background: white; padding: 10px 12px; border-radius: 8px; font-size: 12px; color: #333; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.03); display: flex; align-items: center; gap: 6px; font-weight: 500; user-select: none; }
+        .min-max-box { display: flex; align-items: center; gap: 4px; background: white; padding: 6px 8px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
+        .min-max-input { width: 48px; border: none; outline: none; font-size: 11px; background: #f1f1f1; padding: 4px; border-radius: 4px; text-align: center; color: #333; }
+        .refresh-btn { background: #111; color: white; border: none; padding: 10px 14px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; }
+        .packages-container { width: 90%; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+        .package-card { background: white; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
+        .pkg-left-wrapper { display: flex; align-items: flex-start; gap: 12px; }
+        .usdt-icon-box { width: 40px; height: 40px; background: #e6f4ea; color: #137333; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 18px; font-weight: bold; flex-shrink: 0; margin-top: 2px; }
+        .pkg-left { display: flex; flex-direction: column; gap: 4px; }
+        .pkg-amount { font-size: 17px; font-weight: bold; color: #111; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .pkg-inr-rate { font-size: 11px; font-weight: normal; color: #e65100; background: #fff3e0; padding: 2px 6px; border-radius: 4px; }
+        .pkg-details-row { display: flex; gap: 15px; font-size: 13px; color: #777; margin-top: 2px; }
+        .pkg-details-row span { display: flex; flex-direction: column; gap: 2px; }
+        .pkg-label-sub { font-size: 11px; color: #888; }
+        .pkg-val-sub { font-size: 13px; font-weight: bold; color: #111; }
+        .pkg-quota { color: #0d9488 !important; }
+        .pkg-total-inr { font-size: 12px; font-weight: bold; color: #16a34a; margin-top: 4px; }
+        .buy-action-btn { background: #111; color: white; border: none; padding: 8px 24px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; text-decoration: none; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 70px; background-color: white; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); border-top-left-radius: 20px; border-top-right-radius: 20px; z-index: 1000; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #888; text-decoration: none; font-size: 11px; cursor: pointer; }
+        .nav-item.active { color: #111; font-weight: bold; }
+        .nav-item i { font-size: 18px; }
+        .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 2000; }
+        .modal-box { width: 85%; max-width: 400px; background: #fff; padding: 20px; border-radius: 12px; text-align: center; position: relative; }
+        .close-btn-right { position: absolute; top: 15px; right: 15px; font-size: 22px; color: #aaa; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <!-- टॉप टैब्स (INR और USDT) -->
+    <div class="top-tabs-container">
+        <a href="deposit.html" class="top-tab">INR</a>
+        <span class="top-tab active">USDT</span>
+    </div>
+
+    <!-- रेशियो बैनर शीर्ष पर -->
+    <div class="ratio-banner">
+        <span>Exchange Ratio</span>
+        <span>1 USDT = 109 INR</span>
+    </div>
+
+    <!-- इंसेंटिव और ट्यूटोरियल लिंक बार -->
+    <div class="reward-info-box">
+        <div class="reward-text-left">5 more for <span>10 reward</span></div>
+        <button class="how-buy-btn" onclick="openVideo()">
+            <i class="far fa-play-circle"></i> How Buy Quota?
+        </button>
+    </div>
+
+    <!-- फिल्टर और सॉर्टिंग कंट्रोल्स -->
+    <div class="filter-section">
+        <div class="sort-dropdown-box" id="sortToggleBtn" onclick="toggleSortOrder()">
+            <span id="sortText">From low to high</span>
+            <i class="fas fa-chevron-down" id="sortIcon" style="font-size: 10px;"></i>
+        </div>
+
+        <div class="min-max-box">
+            <input type="number" class="min-max-input" placeholder="Min" id="minInput">
+            <span>-</span>
+            <input type="number" class="min-max-input" placeholder="Max" id="maxInput">
+        </div>
+
+        <button class="refresh-btn" onclick="filterPackages()">Refresh</button>
+    </div>
+
+    <!-- पैकेजेस की डायनेमिक लिस्ट -->
+    <div class="packages-container" id="packagesList">
+        <!-- जावास्क्रिप्ट के जरिए ऑर्डर्स यहाँ लोड होंगे -->
+    </div>
+
+    <!-- वीडियो प्लेयर पॉपअप -->
+    <div id="videoModal" class="custom-modal">
+        <div class="modal-box" style="background:#000;">
+            <span class="close-btn-right" onclick="closeVideo()" style="color:#fff;">&times;</span>
+            <h3 style="color:#fff; margin-bottom: 15px; font-size: 16px;">How Buy Quota Tutorial</h3>
+            <video id="tutorialVideo" controls style="width:100%; border-radius:8px;">
+                <source src="buy-quota-tutorial.mp4" type="video/mp4">
+                आपका ब्राउज़र वीडियो टैग को सपोर्ट नहीं करता।
+            </video>
+        </div>
+    </div>
+
+    <!-- बॉटम नेविगेशन बार -->
+    <nav class="bottom-nav">
+        <a href="dashboard.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="deposit.html" class="nav-item active">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Deposit</span>
+        </a>
+        <a href="bank.html" class="nav-item">
+            <i class="fas fa-university"></i>
+            <span>Bank</span>
+        </a>
+        <a href="team.html" class="nav-item">
+            <i class="fas fa-users"></i>
+            <span>Team</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>Me</span>
+        </a>
+    </nav>
+
+    <!-- जावास्क्रिप्ट लॉजिक -->
+    <script>
+        let isAscending = true;
+        let allPackages = [];
+        const usdtRate = 109; // 1 USDT = 109 INR
+
+        function generateDemoOrders() {
+            const totalOrders = 1000;
+
+            for (let i = 0; i < totalOrders; i++) {
+                let randomAmount;
+                if (Math.random() < 0.70) {
+                    randomAmount = Math.floor(10 + Math.random() * (100 - 10 + 1));
+                } else {
+                    randomAmount = Math.floor(100 + Math.random() * (1000 - 100 + 1));
+                }
+
+                randomAmount = Math.round(randomAmount / 5) * 5;
+                if (randomAmount < 10) randomAmount = 10;
+                if (randomAmount > 1000) randomAmount = 1000;
+
+                let totalInr = randomAmount * usdtRate;
+                let bonusInr = totalInr * 0.02;
+                let bonusUsdt = (bonusInr / usdtRate).toFixed(2);
+                
+                let income = bonusUsdt;
+                let quota = (parseFloat(randomAmount) + parseFloat(income)).toFixed(2);
+                
+                // खरीदने के बाद कुल मिलने वाला पैसा (कोटा का कुल INR वैल्यू)
+                let totalReceiveInr = (parseFloat(quota) * usdtRate).toLocaleString('en-IN', {maximumFractionDigits: 2});
+                let inrValue = totalInr.toLocaleString('en-IN');
+
+                allPackages.push({
+                    amount: randomAmount,
+                    income: income,
+                    quota: quota,
+                    inr: inrValue,
+                    totalReceive: totalReceiveInr
+                });
+            }
+
+            sortAndRender();
+        }
+
+        function toggleSortOrder() {
+            isAscending = !isAscending;
+            const sortText = document.getElementById('sortText');
+            if (isAscending) {
+                sortText.innerText = "From low to high";
+            } else {
+                sortText.innerText = "From high to low";
+            }
+            sortAndRender();
+        }
+
+        function filterPackages() {
+            sortAndRender();
+        }
+
+        function sortAndRender() {
+            const minVal = parseFloat(document.getElementById('minInput').value) || 0;
+            const maxVal = parseFloat(document.getElementById('maxInput').value) || Infinity;
+
+            let filtered = allPackages.filter(pkg => pkg.amount >= minVal && pkg.amount <= maxVal);
+
+            filtered.sort((a, b) => {
+                if (isAscending) {
+                    return a.amount - b.amount;
+                } else {
+                    return b.amount - a.amount;
+                }
+            });
+
+            const container = document.getElementById('packagesList');
+            container.innerHTML = '';
+
+            filtered.forEach(pkg => {
+                const card = document.createElement('div');
+                card.className = 'package-card';
+                card.setAttribute('data-amount', pkg.amount);
+
+                // अब हर ऑर्डर के साथ लोगो, रेट, बोनस और नीचे कुल मिलने वाला INR अमाउंट साफ़ दिखाई देगा
+                card.innerHTML = `
+                    <div class="pkg-left-wrapper">
+                        <div class="usdt-icon-box">
+                            <i class="fa-solid fa-coins"></i>
+                        </div>
+                        <div class="pkg-left">
+                            <div class="pkg-amount">
+                                ${pkg.amount} USDT 
+                                <span class="pkg-inr-rate">₹${pkg.inr} (1 USDT = 109 INR)</span>
+                            </div>
+                            <div class="pkg-details-row">
+                                <span><span class="pkg-label-sub">Bonus (2%)</span><span class="pkg-val-sub">${pkg.income} USDT</span></span>
+                                <span><span class="pkg-label-sub">Total Quota</span><span class="pkg-val-sub pkg-quota">+${pkg.quota} USDT</span></span>
+                            </div>
+                            <div class="pkg-total-inr">
+                                Total You Will Get: ₹${pkg.totalReceive}
+                            </div>
+                        </div>
+                    </div>
+                    <a href="task_usdt.html?amount=${pkg.amount}&income=${pkg.income}&quota=${pkg.quota}&inr=${pkg.inr}" class="buy-action-btn">Buy</a>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function openVideo() {
+            document.getElementById('videoModal').style.display = 'flex';
+            document.getElementById('tutorialVideo').play();
+        }
+
+        function closeVideo() {
+            const vid = document.getElementById('tutorialVideo');
+            vid.pause();
+            vid.currentTime = 0;
+            document.getElementById('videoModal').style.display = 'none';
+        }
+
+        window.onload = function() {
+            generateDemoOrders();
+        };
+    </script>
+</body>
+</html>

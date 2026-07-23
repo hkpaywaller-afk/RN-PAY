@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <!-- FontAwesome Icons के लिए -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f7f7f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .register-container {
+            width: 100%;
+            max-width: 400px;
+            background: #ffffff;
+            padding: 30px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .register-title {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 16px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 15px 14px 45px;
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            font-size: 15px;
+            color: #333;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            border-color: #bbb;
+            background-color: #fff;
+        }
+
+        /* इनवाइट कोड फील्ड जो एडिट नहीं होगी */
+        .input-group input[readonly] {
+            background-color: #f1f1f1;
+            color: #888;
+            cursor: not-allowed;
+        }
+
+        .register-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #666;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.3s ease;
+        }
+
+        .register-btn:hover {
+            background-color: #555;
+        }
+
+        /* लॉगिन लिंक के लिए स्टाइल */
+        .login-link-container {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .login-link-container a {
+            color: #333;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .login-link-container a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="register-container">
+        <div class="register-title">Register</div>
+        
+        <form id="registerForm">
+            <!-- Phone Number Field -->
+            <div class="input-group">
+                <i class="fa-solid fa-phone"></i>
+                <input type="tel" id="phone" placeholder="Phone" required>
+            </div>
+
+            <!-- Enter Password Field -->
+            <div class="input-group">
+                <i class="fa-solid fa-lock"></i>
+                <input type="password" id="password" placeholder="Enter Password" required>
+            </div>
+
+            <!-- Repeat Password Field -->
+            <div class="input-group">
+                <i class="fa-solid fa-lock"></i>
+                <input type="password" id="confirmPassword" placeholder="Repeat Password" required>
+            </div>
+
+            <!-- Auto-filled Invite Code Field (Read-only / Non-editable) -->
+            <div class="input-group">
+                <i class="fa-solid fa-envelope"></i>
+                <input type="text" id="inviteCode" placeholder="Invite Code" readonly>
+            </div>
+
+            <!-- Register Button -->
+            <button type="submit" class="register-btn">Register</button>
+        </form>
+
+        <!-- Login Page Link -->
+        <div class="login-link-container">
+            Already have an account? <a href="login.html">Login</a>
+        </div>
+    </div>
+
+    <script>
+        // यूआरएल से ऑटोमैटिक इनवाइट कोड कैप्चर करने का जावास्क्रिप्ट कोड
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const inviteCode = urlParams.get('invite');
+            
+            const inviteInput = document.getElementById('inviteCode');
+            
+            if (inviteCode) {
+                inviteInput.value = inviteCode;
+            } else {
+                inviteInput.value = "Oeahoyopbkbe"; 
+            }
+        };
+
+        // फॉर्म सबमिट होने पर डेटा संभालने के लिए
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const phone = document.getElementById('phone').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const inviteCode = document.getElementById('inviteCode').value;
+
+            if (password !== confirmPassword) {
+                alert("पासवर्ड मेल नहीं खा रहा है!");
+                return;
+            }
+
+            console.log({ phone, password, inviteCode });
+            alert("रजिस्टर प्रक्रिया सफल रही!");
+        });
+    </script>
+
+</body>
+</html>

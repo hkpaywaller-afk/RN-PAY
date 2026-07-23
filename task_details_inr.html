@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HoyoPay - INR Task Details</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #f7f7f7; padding-bottom: 90px; color: #111; }
+        
+        .header { background: #fff; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eaeaea; position: sticky; top: 0; z-index: 100; }
+        .header-left { display: flex; align-items: center; gap: 12px; font-size: 18px; font-weight: bold; }
+        .header-left a { color: #111; text-decoration: none; }
+        
+        .container { width: 92%; max-width: 480px; margin: 15px auto; display: flex; flex-direction: column; gap: 15px; }
+        .card { background: #fff; padding: 18px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); display: flex; flex-direction: column; gap: 12px; }
+        
+        /* 30 Mins Timer Banner */
+        .timer-banner { background: #fff7ed; border: 1px solid #ffedd5; color: #c2410c; padding: 12px; border-radius: 8px; text-align: center; font-size: 14px; font-weight: bold; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        
+        .amount-header { text-align: center; padding: 10px 0; border-bottom: 1px dashed #eee; }
+        .amount-header .label { font-size: 12px; color: #777; font-weight: 500; }
+        .amount-header .val { font-size: 28px; font-weight: bold; color: #111; margin-top: 4px; }
+        
+        .info-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #555; }
+        .info-row .val-bold { font-weight: bold; color: #111; display: flex; align-items: center; gap: 6px; }
+        .copy-btn { background: #f1f1f1; border: none; padding: 3px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; color: #333; font-weight: 600; }
+        
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 12px; font-weight: bold; color: #333; }
+        .form-input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; background: #fafafa; }
+        
+        .upload-box { border: 2px dashed #ccc; padding: 15px; border-radius: 8px; text-align: center; cursor: pointer; background: #fafafa; font-size: 12px; color: #666; }
+        .upload-box i { font-size: 24px; color: #888; margin-bottom: 6px; }
+        
+        .btn-group { display: flex; gap: 10px; margin-top: 5px; }
+        .submit-btn { background: #111; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; flex: 2; text-align: center; }
+        .cancel-btn { background: #fee2e2; color: #dc2626; border: none; padding: 14px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; flex: 1; text-align: center; }
+
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 70px; background-color: white; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); border-top-left-radius: 20px; border-top-right-radius: 20px; z-index: 1000; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #888; text-decoration: none; font-size: 11px; cursor: pointer; }
+        .nav-item.active { color: #111; font-weight: bold; }
+        .nav-item i { font-size: 18px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-left">
+            <a href="recharge_history.html"><i class="fas fa-arrow-left"></i></a>
+            <span>INR Task Details</span>
+        </div>
+        <div><i class="fas fa-university" style="font-size: 20px;"></i></div>
+    </div>
+
+    <div class="container">
+        
+        <!-- 30 Mins Countdown Timer -->
+        <div class="timer-banner">
+            <i class="far fa-clock"></i>
+            <span>Payment Time Remaining: <span id="countdown">30:00</span> mins</span>
+        </div>
+
+        <div class="card">
+            <div class="amount-header">
+                <div class="label">Order Amount (INR)</div>
+                <!-- यहाँ यूजर द्वारा क्लिक किया गया असली अमाउंट दिखेगा -->
+                <div class="val" id="displayAmount">₹0</div>
+            </div>
+
+            <div class="info-row">
+                <span>Order Number</span>
+                <span class="val-bold"><span id="orderId">ORD9921</span> <button class="copy-btn" onclick="copyText(document.getElementById('orderId').innerText)">Copy</button></span>
+            </div>
+        </div>
+
+        <!-- Bank Details Card -->
+        <div class="card">
+            <div style="font-size: 14px; font-weight: bold; color: #111; border-bottom: 1px solid #eee; padding-bottom: 8px;">Company Bank Details (Transfer Details)</div>
+            
+            <div class="info-row">
+                <span>Account Number</span>
+                <span class="val-bold"><span id="accNum">33290100004921</span> <button class="copy-btn" onclick="copyText('33290100004921')">Copy</button></span>
+            </div>
+            <div class="info-row">
+                <span>Confirm Account Number</span>
+                <span class="val-bold"><span id="confAcc">33290100004921</span> <button class="copy-btn" onclick="copyText('33290100004921')">Copy</button></span>
+            </div>
+            <div class="info-row">
+                <span>Bank Name</span>
+                <span class="val-bold"><span id="bankName">HDFC BANK</span> <button class="copy-btn" onclick="copyText('HDFC BANK')">Copy</button></span>
+            </div>
+            <div class="info-row">
+                <span>Account Holder Name</span>
+                <span class="val-bold"><span id="holderName">TATA PAY SOLUTIONS</span> <button class="copy-btn" onclick="copyText('TATA PAY SOLUTIONS')">Copy</button></span>
+            </div>
+            <div class="info-row">
+                <span>IFSC Code</span>
+                <span class="val-bold"><span id="ifscCode">HDFC0001234</span> <button class="copy-btn" onclick="copyText('HDFC0001234')">Copy</button></span>
+            </div>
+        </div>
+
+        <!-- UTR & Screenshot Form -->
+        <div class="card">
+            <div class="form-group">
+                <label for="utrInput">Enter 12-digit UTR / Reference Number</label>
+                <input type="text" id="utrInput" class="form-input" placeholder="e.g. 4102XXXXXXXX" maxlength="12">
+            </div>
+
+            <div class="form-group">
+                <label>Upload Payment Screenshot</label>
+                <div class="upload-box" onclick="document.getElementById('proofInput').click()">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <div id="uploadText">Click here to select screenshot</div>
+                    <input type="file" id="proofInput" style="display: none;" accept="image/*" onchange="fileSelected(this)">
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="cancel-btn" onclick="cancelOrder()">Cancel Order</button>
+                <button class="submit-btn" onclick="submitTask()">Submit Task</button>
+            </div>
+        </div>
+
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="dashboard.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="deposit.html" class="nav-item active">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Deposit</span>
+        </a>
+        <a href="bank.html" class="nav-item">
+            <i class="fas fa-university"></i>
+            <span>Bank</span>
+        </a>
+        <a href="team.html" class="nav-item">
+            <i class="fas fa-users"></i>
+            <span>Team</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>Me</span>
+        </a>
+    </nav>
+
+    <script>
+        // यूजर जिस भी बाय बटन पर क्लिक करके आएगा, उसका अमाउंट URL से यहाँ आ जाएगा
+        const urlParams = new URLSearchParams(window.location.search);
+        let amountVal = urlParams.get('amount');
+
+        if (amountVal) {
+            // जो अमाउंट क्लिक किया है, वही दिखेगा (जैसे 500 या 3000)
+            document.getElementById('displayAmount').innerText = '₹' + parseInt(amountVal).toLocaleString('en-IN');
+        } else {
+            // अगर कोई गलती से सीधा लिंक खोल ले, तो सेफ साइड के लिए ₹0 या डिफ़ॉल्ट दिखेगा
+            document.getElementById('displayAmount').innerText = '₹0';
+        }
+
+        // आर्डर आईडी अपने आप जनरेट होती रहेगी
+        let randomOrderId = 'ORD' + Math.floor(100000 + Math.random() * 900000);
+        document.getElementById('orderId').innerText = randomOrderId;
+
+        function copyText(text) {
+            navigator.clipboard.writeText(text);
+            alert('Copied to clipboard: ' + text);
+        }
+
+        function fileSelected(input) {
+            if(input.files && input.files[0]) {
+                document.getElementById('uploadText').innerText = "File selected: " + input.files[0].name;
+            }
+        }
+
+        function submitTask() {
+            const utr = document.getElementById('utrInput').value.trim();
+            if(utr.length < 10) {
+                alert('Please enter a valid 12-digit UTR number!');
+                return;
+            }
+            alert('INR task submitted successfully!');
+            window.location.href = 'recharge_history.html';
+        }
+
+        function cancelOrder() {
+            if(confirm('Are you sure you want to cancel this order?')) {
+                alert('Order has been cancelled.');
+                window.location.href = 'recharge_history.html';
+            }
+        }
+
+        // 30 Minutes Countdown Timer
+        let timeInSeconds = 30 * 60;
+        let timerInterval = setInterval(() => {
+            if(timeInSeconds <= 0) {
+                clearInterval(timerInterval);
+                document.getElementById('countdown').innerText = "00:00 (Timeout)";
+                alert('Time expired! This order has timed out.');
+                window.location.href = 'recharge_history.html';
+                return;
+            }
+            timeInSeconds--;
+            let mins = Math.floor(timeInSeconds / 60);
+            let secs = timeInSeconds % 60;
+            document.getElementById('countdown').innerText = `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }, 1000);
+    </script>
+</body>
+</html>

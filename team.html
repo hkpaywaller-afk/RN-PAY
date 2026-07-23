@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NRPay - Team</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #f7f7f7; padding-bottom: 90px; color: #111; }
+        
+        .container { width: 92%; max-width: 480px; margin: 15px auto; display: flex; flex-direction: column; gap: 15px; }
+
+        /* पेज हेडिंग */
+        .page-title { font-size: 22px; font-weight: bold; color: #111; margin-bottom: 2px; }
+
+        /* डार्क समरी कार्ड */
+        .dark-summary-card { background: #262626; color: white; padding: 20px; border-radius: 16px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .summary-row-top { display: flex; justify-content: space-between; align-items: flex-start; }
+        .summary-col { display: flex; flex-direction: column; gap: 4px; }
+        .summary-val { font-size: 22px; font-weight: bold; letter-spacing: 0.5px; }
+        .summary-lbl { font-size: 12px; color: #aaa; }
+        
+        .team-count-badge { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #ddd; font-weight: 500; margin-top: 4px; }
+        .team-count-badge i { font-size: 16px; color: #fff; }
+
+        /* इन्वाइट कोड सेक्शन */
+        .invite-section-title { font-size: 16px; font-weight: bold; color: #111; margin-top: 5px; }
+        .invite-box { background: #fff; border: 1px solid #eaeaea; padding: 12px 16px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+        .invite-link-text { font-size: 12px; color: #555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 320px; }
+        .copy-icon-btn { background: none; border: none; font-size: 18px; color: #111; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; }
+
+        /* लेवल टैब्स (L1, L2, L3) */
+        .level-tabs { display: flex; background: #fff; padding: 6px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); gap: 6px; border: 1px solid #eee; }
+        .level-tab { flex: 1; padding: 8px; text-align: center; font-size: 12px; font-weight: bold; color: #666; cursor: pointer; border-radius: 8px; transition: 0.2s; }
+        .level-tab.active { background: #111; color: #fff; }
+
+        /* टीम डिटेल सेक्शन */
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; }
+        .section-title { font-size: 16px; font-weight: bold; color: #111; }
+        
+        .members-container { display: flex; flex-direction: column; gap: 12px; }
+        
+        /* मेंबर कार्ड */
+        .member-item-card { background: #fff; padding: 14px 16px; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); display: flex; align-items: center; justify-content: space-between; cursor: pointer; border: 1px solid #f0f0f0; transition: 0.2s; }
+        .member-item-card:hover { border-color: #ccc; }
+        
+        .member-left { display: flex; align-items: center; gap: 12px; }
+        .member-avatar { width: 44px; height: 44px; border-radius: 50%; background: radial-gradient(circle, #0284c7 0%, #0369a1 50%, #0f172a 100%); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+        .member-avatar::after { content: ''; position: absolute; width: 100%; height: 100%; background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 6px 6px; opacity: 0.3; }
+        
+        .member-info { display: flex; flex-direction: column; gap: 3px; }
+        .member-id-text { font-size: 14px; font-weight: bold; color: #111; }
+        .member-recharge { font-size: 12px; color: #777; }
+
+        .member-right { display: flex; align-items: center; gap: 12px; }
+        .member-stats-right { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+        .member-sub-count { font-size: 12px; color: #666; display: flex; align-items: center; gap: 4px; }
+        .member-comm-val { font-size: 13px; font-weight: bold; color: #333; }
+        .arrow-icon { font-size: 12px; color: #aaa; }
+
+        .empty-team { text-align: center; padding: 30px; background: #fff; border-radius: 12px; color: #777; font-size: 13px; border: 1px solid #eee; }
+
+        /* सब-मेंबर्स पॉपअप मॉडल */
+        .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 2000; }
+        .modal-box { width: 90%; max-width: 400px; background: #fff; padding: 20px; border-radius: 16px; display: flex; flex-direction: column; gap: 12px; max-height: 80vh; overflow-y: auto; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .close-modal { position: absolute; top: 15px; right: 15px; font-size: 20px; cursor: pointer; color: #555; }
+
+        /* बॉटम नेविगेशन बार */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 70px; background-color: white; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); border-top: 1px solid #f0f0f0; z-index: 1000; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #888; text-decoration: none; font-size: 11px; cursor: pointer; }
+        .nav-item.active { color: #111; font-weight: bold; }
+        .nav-item i { font-size: 18px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div class="page-title">Team</div>
+
+        <!-- डार्क समरी कार्ड -->
+        <div class="dark-summary-card">
+            <div class="summary-row-top">
+                <div class="summary-col">
+                    <span class="summary-val" id="totalTeamCommission">13386.49</span>
+                    <span class="summary-lbl">Commission</span>
+                </div>
+                <div class="summary-col" style="text-align: right;">
+                    <span class="summary-val" id="totalTeamRecharge">4424286.04</span>
+                    <span class="summary-lbl">Team Recharge</span>
+                </div>
+            </div>
+            <div class="team-count-badge">
+                <i class="fas fa-user"></i> <span id="totalTeamCount">158</span>
+            </div>
+        </div>
+
+        <!-- इन्वाइट कोड सेक्शन -->
+        <div class="invite-section-title">Invite Code</div>
+        <div class="invite-box">
+            <span class="invite-link-text" id="fullInviteLinkDisplay">Loading link...</span>
+            <button class="copy-icon-btn" onclick="copyInviteLink()" title="Copy Link">
+                <i class="far fa-copy"></i>
+            </button>
+        </div>
+
+        <!-- लेवल टैब्स -->
+        <div class="level-tabs">
+            <div class="level-tab active" id="tabL1" onclick="switchLevel(1)">Level 1 (5%)</div>
+            <div class="level-tab" id="tabL2" onclick="switchLevel(2)">Level 2 (2%)</div>
+            <div class="level-tab" id="tabL3" onclick="switchLevel(3)">Level 3 (1.5%)</div>
+        </div>
+
+        <!-- टीम डिटेल हेडर -->
+        <div class="section-header">
+            <div class="section-title">Team Detail</div>
+        </div>
+
+        <!-- मेंबर्स लिस्ट कंटेनर -->
+        <div class="members-container" id="membersList">
+            <!-- जावास्क्रिप्ट से यहाँ मेंबर्स लोड होंगे -->
+        </div>
+
+    </div>
+
+    <!-- सब-मेंबर्स देखने का पॉपअप -->
+    <div id="subMemberModal" class="custom-modal">
+        <div class="modal-box">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h3 style="font-size: 16px; border-bottom: 1px solid #eee; padding-bottom: 8px; color: #111;">Sub-Members List</h3>
+            <div id="subMembersContent" style="display: flex; flex-direction: column; gap: 8px;">
+                <!-- सब मेंबर्स यहाँ दिखेंगे -->
+            </div>
+        </div>
+    </div>
+
+    <!-- बॉटम नेविगेशन बार -->
+    <nav class="bottom-nav">
+        <a href="dashboard.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="deposit.html" class="nav-item">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Deposit</span>
+        </a>
+        <a href="bank.html" class="nav-item">
+            <i class="fas fa-university"></i>
+            <span>Bank</span>
+        </a>
+        <a href="team.html" class="nav-item active">
+            <i class="fas fa-users"></i>
+            <span>Team</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>Me</span>
+        </a>
+    </nav>
+
+    <script>
+        let currentLevel = 1;
+
+        // मेंबर्स डेटा जिसमें आईडी 20001 से शुरू हो रही है
+        let mockTeamData = {
+            level1: [
+                { id: "20001", recharge: 0, commission: 230.04, subCount: 7, subMembers: [{ id: "20015", recharge: 0 }, { id: "20016", recharge: 0 }] },
+                { id: "20002", recharge: 0, commission: 819.38, subCount: 12, subMembers: [{ id: "20020", recharge: 500 }] },
+                { id: "20003", recharge: 0, commission: 4012.90, subCount: 7, subMembers: [] },
+                { id: "20004", recharge: 0, commission: 777.05, subCount: 8, subMembers: [] }
+            ],
+            level2: [
+                { id: "20005", recharge: 1500, commission: 120.50, subCount: 3, subMembers: [] },
+                { id: "20006", recharge: 0, commission: 45.00, subCount: 2, subMembers: [] }
+            ],
+            level3: [
+                { id: "20007", recharge: 5000, commission: 75.20, subCount: 1, subMembers: [] }
+            ]
+        };
+
+        window.onload = function() {
+            initInviteCode();
+            renderTeamData();
+        };
+
+        // परमानेंट और यूनिक इनवाइट कोड जनरेट करना या लोड करना
+        function initInviteCode() {
+            let savedCode = localStorage.getItem('user_permanent_invite_code');
+            if (!savedCode) {
+                savedCode = 'aswiftpay' + Math.floor(100 + Math.random() * 900);
+                localStorage.setItem('user_permanent_invite_code', savedCode);
+            }
+
+            let currentHost = window.location.hostname;
+            let baseUrl = "";
+
+            if (currentHost === "localhost" || currentHost === "127.0.0.1") {
+                baseUrl = window.location.origin + "/register.html";
+            } else {
+                baseUrl = "https://nrpay.app.com/register.html";
+            }
+
+            let fullLink = baseUrl + "?invite=" + savedCode;
+            document.getElementById('fullInviteLinkDisplay').innerText = fullLink;
+        }
+
+        function copyInviteLink() {
+            let currentHost = window.location.hostname;
+            let baseUrl = (currentHost === "localhost" || currentHost === "127.0.0.1") ? window.location.origin + "/register.html" : "https://nrpay.app.com/register.html";
+            let code = localStorage.getItem('user_permanent_invite_code');
+            let fullLink = baseUrl + "?invite=" + code;
+
+            navigator.clipboard.writeText(fullLink).then(() => {
+                alert('Invite Link Copied Successfully!\n\n' + fullLink);
+            });
+        }
+
+        function switchLevel(level) {
+            currentLevel = level;
+            document.getElementById('tabL1').className = level === 1 ? 'level-tab active' : 'level-tab';
+            document.getElementById('tabL2').className = level === 2 ? 'level-tab active' : 'level-tab';
+            document.getElementById('tabL3').className = level === 3 ? 'level-tab active' : 'level-tab';
+            renderTeamData();
+        }
+
+        function renderTeamData() {
+            const container = document.getElementById('membersList');
+            container.innerHTML = '';
+
+            let list = currentLevel === 1 ? mockTeamData.level1 : (currentLevel === 2 ? mockTeamData.level2 : mockTeamData.level3);
+            
+            if (list.length === 0) {
+                container.innerHTML = `<div class="empty-team">No members found in Level ${currentLevel} yet.</div>`;
+                return;
+            }
+
+            list.forEach(member => {
+                container.innerHTML += `
+                    <div class="member-item-card" onclick='openSubMembers(${JSON.stringify(member.subMembers)}, "${member.id}")'>
+                        <div class="member-left">
+                            <div class="member-avatar"></div>
+                            <div class="member-info">
+                                <span class="member-id-text">ID: ${member.id}</span>
+                                <span class="member-recharge">Recharge: ${member.recharge}</span>
+                            </div>
+                        </div>
+                        <div class="member-right">
+                            <div class="member-stats-right">
+                                <span class="member-sub-count"><i class="fas fa-user" style="font-size: 11px;"></i> ${member.subCount}</span>
+                                <span class="member-comm-val">Comm: ${member.commission}</span>
+                            </div>
+                            <i class="fas fa-chevron-right arrow-icon"></i>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // सब-मेंबर्स देखने का पॉपअप
+        function openSubMembers(subList, parentId) {
+            const content = document.getElementById('subMembersContent');
+            content.innerHTML = `<div style="font-size: 13px; font-weight: bold; color: #555; margin-bottom: 5px;">Downline of ID ${parentId}:</div>`;
+
+            if (!subList || subList.length === 0) {
+                content.innerHTML += `<div style="font-size: 12px; color: #777; padding: 10px; background: #f9f9f9; border-radius: 8px;">No sub-members under this ID.</div>`;
+            } else {
+                subList.forEach(sub => {
+                    content.innerHTML += `
+                        <div style="background: #f7f7f7; padding: 10px 12px; border-radius: 8px; display: flex; justify-content: space-between; font-size: 13px; align-items: center;">
+                            <span><i class="fas fa-id-badge" style="font-size: 11px; color: #555; margin-right: 5px;"></i> ID: ${sub.id}</span>
+                            <span>Recharge: <b>₹${sub.recharge}</b></span>
+                        </div>
+                    `;
+                });
+            }
+
+            document.getElementById('subMemberModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('subMemberModal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

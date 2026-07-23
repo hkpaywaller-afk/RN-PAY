@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RNPay Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f7f7f7;
+            padding-bottom: 90px;
+        }
+
+        /* हेडर - RNPay नाम */
+        .app-header {
+            padding: 15px 20px 5px 20px;
+            font-size: 22px;
+            font-weight: bold;
+            color: #111;
+            background-color: #f7f7f7;
+        }
+
+        /* बैनर स्लाइडर (ऑटोमैटिक स्लाइड) */
+        .banner-container {
+            position: relative;
+            width: 90%;
+            margin: 15px auto;
+            border-radius: 12px;
+            overflow: hidden;
+            height: 160px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            background-color: #1a1a1a;
+        }
+
+        .banner-slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            color: white;
+        }
+
+        .banner-slide.active { opacity: 1; }
+
+        .banner-img-bg {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover;
+            z-index: 1;
+        }
+
+        .banner-content {
+            position: relative;
+            z-index: 2;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 15px;
+            border-radius: 8px;
+        }
+
+        .banner-content h3 { font-size: 18px; margin-bottom: 5px; }
+        .banner-content p { font-size: 12px; opacity: 0.9; margin-bottom: 10px; }
+        .banner-btn {
+            background: #fff;
+            border: none;
+            color: #111;
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* स्लाइडर डॉट्स */
+        .slider-dots {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 5px;
+            z-index: 10;
+        }
+        .dot {
+            width: 6px;
+            height: 6px;
+            background-color: rgba(255,255,255,0.4);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .dot.active { background-color: white; }
+
+        /* रेश्यो सेक्शन */
+        .ratio-section {
+            display: flex;
+            justify-content: space-between;
+            background: white;
+            padding: 15px 20px;
+            margin: 15px auto;
+            width: 90%;
+            border-radius: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
+        .ratio-box { width: 48%; }
+        .ratio-title { font-size: 12px; color: #888; margin-bottom: 5px; }
+        .ratio-value { font-size: 18px; font-weight: bold; }
+        .ratio-sub { font-size: 10px; color: #888; }
+
+        /* Top up बटन */
+        .topup-btn {
+            display: block;
+            width: 90%;
+            margin: 15px auto;
+            padding: 15px;
+            background-color: #111;
+            color: white;
+            text-align: center;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        /* स्टैटिस्टिक्स ग्रिड */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            width: 90%;
+            margin: 0 auto;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            text-decoration: none;
+            color: inherit;
+            cursor: pointer;
+        }
+        .stat-left { display: flex; flex-direction: column; gap: 5px; }
+        .stat-label { font-size: 12px; color: #888; }
+        .stat-value { font-size: 16px; font-weight: bold; color: #111; }
+        .stat-arrow { color: #ccc; font-size: 12px; }
+
+        /* ट्यूटोरियल सेक्शन */
+        .tutorial-section {
+            width: 90%;
+            margin: 25px auto;
+        }
+        .tutorial-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; }
+
+        .tutorial-card {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
+        .tut-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .tut-text { font-size: 14px; color: #333; }
+        .tut-sub { 
+            font-size: 12px; 
+            color: #007bff; 
+            margin-top: 10px; 
+            display: inline-block; 
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .tut-logo-img {
+            width: 45px;
+            height: 45px;
+            object-fit: contain;
+            border-radius: 6px;
+        }
+
+        /* बॉटम नेविगेशन बार */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 70px;
+            background-color: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #888;
+            text-decoration: none;
+            font-size: 11px;
+            cursor: pointer;
+        }
+        .nav-item.active { color: #111; font-weight: bold; }
+        .nav-item i { font-size: 18px; }
+
+        /* वीडियो Modal (पॉपअप) स्टाइल */
+        #videoModal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .modal-content {
+            width: 90%;
+            max-width: 500px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            position: relative;
+        }
+        .close-btn {
+            position: absolute;
+            top: 10px; right: 15px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        video {
+            width: 100%;
+            border-radius: 8px;
+            background: #000;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- हेडर -->
+    <header class="app-header">
+        RNPay
+    </header>
+
+    <!-- 3 बैनर ऑटोमैटिक स्लाइडर (फिक्स इमेज टैग के साथ) -->
+    <div class="banner-container">
+        <!-- बैनर 1 -->
+        <div class="banner-slide active">
+            <img src="banner-1.jpg" alt="Banner 1" class="banner-img-bg">
+            <div class="banner-content">
+                <h3>A must read for newbies</h3>
+                <p>How to make more profits</p>
+                <button class="banner-btn" onclick="alert('Banner 1 Clicked')">Click to read</button>
+            </div>
+        </div>
+        <!-- बैनर 2 -->
+        <div class="banner-slide">
+            <img src="banner-2.jpg" alt="Banner 2" class="banner-img-bg">
+            <div class="banner-content">
+                <h3>Special Offer: Double Bonus!</h3>
+                <p>Limited time offer for first deposit.</p>
+                <button class="banner-btn" onclick="alert('Banner 2 Clicked')">Claim Now</button>
+            </div>
+        </div>
+        <!-- बैनर 3 -->
+        <div class="banner-slide">
+            <img src="banner-3.jpg" alt="Banner 3" class="banner-img-bg">
+            <div class="banner-content">
+                <h3>New Update & Security</h3>
+                <p>Check out our latest features.</p>
+                <button class="banner-btn" onclick="alert('Banner 3 Clicked')">Explore</button>
+            </div>
+        </div>
+
+        <div class="slider-dots">
+            <span class="dot active" onclick="currentSlide(0)"></span>
+            <span class="dot" onclick="currentSlide(1)"></span>
+            <span class="dot" onclick="currentSlide(2)"></span>
+        </div>
+    </div>
+
+    <!-- रेश्यो सेक्शन -->
+    <section class="ratio-section">
+        <div class="ratio-box">
+            <div class="ratio-title">USDT Ratio</div>
+            <div class="ratio-value">1 USDT ≈ 107.1 INR</div>
+            <div class="ratio-sub">Bonus ratio: 2%</div>
+        </div>
+        <div class="ratio-box" style="text-align: right;">
+            <div class="ratio-title">INR Bonus Ratio</div>
+            <div class="ratio-value">4%</div>
+        </div>
+    </section>
+
+    <!-- Top up बटन -->
+    <a href="deposit.html" class="topup-btn">Top up</a>
+
+    <!-- स्टैटिस्टिक्स ग्रिड -->
+    <section class="stats-grid">
+        <a href="bank.html" class="stat-card">
+            <div class="stat-left">
+                <span class="stat-label">Bank Account</span>
+                <span class="stat-value">Linked</span>
+            </div>
+            <div class="stat-arrow"><i class="fas fa-chevron-right"></i></div>
+        </a>
+
+        <a href="token_history.html" class="stat-card">
+            <div class="stat-left">
+                <span class="stat-label">Today Received</span>
+                <span class="stat-value">0.00</span>
+            </div>
+            <div class="stat-arrow"><i class="fas fa-chevron-right"></i></div>
+        </a>
+
+        <a href="profile.html" class="stat-card">
+            <div class="stat-left">
+                <span class="stat-label">Balance</span>
+                <span class="stat-value">116.06</span>
+            </div>
+            <div class="stat-arrow"><i class="fas fa-chevron-right"></i></div>
+        </a>
+
+        <a href="token_history.html" class="stat-card">
+            <div class="stat-left">
+                <span class="stat-label">Team Commission</span>
+                <span class="stat-value">2247.01</span>
+            </div>
+            <div class="stat-arrow"><i class="fas fa-chevron-right"></i></div>
+        </a>
+
+        <a href="recharge_history.html" class="stat-card" style="grid-column: span 2;">
+            <div class="stat-left">
+                <span class="stat-label">Top up Bonus</span>
+                <span class="stat-value">0.00</span>
+            </div>
+            <div class="stat-arrow"><i class="fas fa-chevron-right"></i></div>
+        </a>
+    </section>
+
+    <!-- ट्यूटोरियल सेक्शन (लोगो इमेज और वीडियो के साथ) -->
+    <section class="tutorial-section">
+        <div class="tutorial-title">Tutorial</div>
+        
+        <!-- FreeCharge -->
+        <div class="tutorial-card">
+            <div class="tut-row">
+                <div class="tut-text">
+                    How to link to FreeCharge?
+                    <br>
+                    <span class="tut-sub" onclick="openVideo('video-freecharge.mp4', 'FreeCharge Tutorial Video')">Watch video <i class="fas fa-play" style="font-size: 10px;"></i></span>
+                </div>
+                <img src="logo-freecharge.png" alt="FreeCharge" class="tut-logo-img">
+            </div>
+        </div>
+
+        <!-- Indus -->
+        <div class="tutorial-card">
+            <div class="tut-row">
+                <div class="tut-text">
+                    How to link to Indus?
+                    <br>
+                    <span class="tut-sub" onclick="openVideo('video-indusind.mp4', 'IndusInd Tutorial Video')">Watch video <i class="fas fa-play" style="font-size: 10px;"></i></span>
+                </div>
+                <img src="logo-indusind.png" alt="IndusInd" class="tut-logo-img">
+            </div>
+        </div>
+
+        <!-- PhonePe -->
+        <div class="tutorial-card">
+            <div class="tut-row">
+                <div class="tut-text">
+                    How to link to PhonePe and other?
+                    <br>
+                    <span class="tut-sub" onclick="openVideo('video-phonepe.mp4', 'PhonePe Tutorial Video')">Watch video <i class="fas fa-play" style="font-size: 10px;"></i></span>
+                </div>
+                <img src="logo-phonepe.png" alt="PhonePe" class="tut-logo-img">
+            </div>
+        </div>
+    </section>
+
+    <!-- वीडियो देखने के लिए पॉपअप विंडो (Modal) -->
+    <div id="videoModal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeVideo()">&times;</span>
+            <h3 id="videoTitle" style="margin-bottom: 15px;">Video Player</h3>
+            <video id="tutorialVideo" controls>
+                <source src="" type="video/mp4">
+                आपका ब्राउज़र वीडियो टैग को सपोर्ट नहीं करता।
+            </video>
+        </div>
+    </div>
+
+    <!-- बॉटम नेविगेशन बार -->
+    <nav class="bottom-nav">
+        <a href="dashboard.html" class="nav-item active">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="deposit.html" class="nav-item">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Deposit</span>
+        </a>
+        <a href="bank.html" class="nav-item">
+            <i class="fas fa-university"></i>
+            <span>Bank</span>
+        </a>
+        <a href="team.html" class="nav-item">
+            <i class="fas fa-users"></i>
+            <span>Team</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>Me</span>
+        </a>
+    </nav>
+
+    <!-- जावास्क्रिप्ट -->
+    <script>
+        // बैनर ऑटोमैटिक स्लाइडर लॉजिक
+        let slideIndex = 0;
+        const slides = document.querySelectorAll('.banner-slide');
+        const dots = document.querySelectorAll('.dot');
+
+        function showSlides() {
+            slides.forEach(slide => slide.classList.remove('active'));
+            dots.forEach(dot => dot.classList.remove('active'));
+            
+            slideIndex++;
+            if (slideIndex > slides.length) { slideIndex = 1; }
+            
+            slides[slideIndex - 1].classList.add('active');
+            dots[slideIndex - 1].classList.add('active');
+            
+            setTimeout(showSlides, 3500);
+        }
+        showSlides();
+
+        function currentSlide(n) {
+            slideIndex = n;
+            slides.forEach(slide => slide.classList.remove('active'));
+            dots.forEach(dot => dot.classList.remove('active'));
+            
+            slides[slideIndex].classList.add('active');
+            dots[slideIndex].classList.add('active');
+        }
+
+        // वीडियो प्ले करने के फंक्शन्स
+        function openVideo(videoSrc, title) {
+            document.getElementById('videoTitle').innerText = title;
+            const videoElement = document.getElementById('tutorialVideo');
+            videoElement.src = videoSrc;
+            document.getElementById('videoModal').style.display = 'flex';
+            videoElement.play();
+        }
+
+        function closeVideo() {
+            const videoElement = document.getElementById('tutorialVideo');
+            videoElement.pause();
+            videoElement.src = "";
+            document.getElementById('videoModal').style.display = 'none';
+        }
+    </script>
+
+</body>
+</html>

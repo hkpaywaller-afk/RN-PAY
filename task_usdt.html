@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HoyoPay - USDT Task Details</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #f7f7f7; padding-bottom: 90px; color: #111; }
+        
+        .header { background: #fff; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eaeaea; position: sticky; top: 0; z-index: 100; }
+        .header-left { display: flex; align-items: center; gap: 12px; font-size: 18px; font-weight: bold; }
+        .header-left a { color: #111; text-decoration: none; }
+        
+        .container { width: 92%; max-width: 480px; margin: 15px auto; display: flex; flex-direction: column; gap: 15px; }
+        .card { background: #fff; padding: 18px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); display: flex; flex-direction: column; gap: 12px; }
+        
+        /* 30 Mins Timer Banner */
+        .timer-banner { background: #e6f4ea; border: 1px solid #ceead6; color: #137333; padding: 12px; border-radius: 8px; text-align: center; font-size: 14px; font-weight: bold; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        
+        .amount-header { text-align: center; padding: 10px 0; border-bottom: 1px dashed #eee; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .usdt-logo-box { width: 45px; height: 45px; background: #e6f4ea; color: #137333; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 20px; font-weight: bold; }
+        
+        .inr-payable-box { background: #fff7ed; border: 1px solid #ffedd5; padding: 12px; border-radius: 8px; text-align: center; margin-top: 5px; }
+        .inr-payable-box .label { font-size: 12px; color: #c2410c; font-weight: 600; }
+        .inr-payable-box .val { font-size: 22px; font-weight: bold; color: #c2410c; margin-top: 2px; }
+        .inr-payable-box .rate-note { font-size: 11px; color: #777; margin-top: 2px; }
+
+        .info-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #555; }
+        .info-row .val-bold { font-weight: bold; color: #111; display: flex; align-items: center; gap: 6px; word-break: break-all; }
+        .copy-btn { background: #f1f1f1; border: none; padding: 3px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; color: #333; font-weight: 600; flex-shrink: 0; }
+        
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 12px; font-weight: bold; color: #333; }
+        .form-input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; background: #fafafa; }
+        
+        .upload-box { border: 2px dashed #ccc; padding: 15px; border-radius: 8px; text-align: center; cursor: pointer; background: #fafafa; font-size: 12px; color: #666; }
+        .upload-box i { font-size: 24px; color: #888; margin-bottom: 6px; }
+        
+        .btn-group { display: flex; gap: 10px; margin-top: 5px; }
+        .submit-btn { background: #137333; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; flex: 2; text-align: center; }
+        .cancel-btn { background: #fee2e2; color: #dc2626; border: none; padding: 14px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; flex: 1; text-align: center; }
+
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 70px; background-color: white; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); border-top-left-radius: 20px; border-top-right-radius: 20px; z-index: 1000; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #888; text-decoration: none; font-size: 11px; cursor: pointer; }
+        .nav-item.active { color: #111; font-weight: bold; }
+        .nav-item i { font-size: 18px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-left">
+            <a href="recharge_history.html"><i class="fas fa-arrow-left"></i></a>
+            <span>USDT Task Details</span>
+        </div>
+        <div><i class="fa-solid fa-coins" style="font-size: 20px; color: #137333;"></i></div>
+    </div>
+
+    <div class="container">
+        
+        <!-- 30 Mins Countdown Timer -->
+        <div class="timer-banner">
+            <i class="far fa-clock"></i>
+            <span>Payment Time Remaining: <span id="countdown">30:00</span> mins</span>
+        </div>
+
+        <div class="card">
+            <div class="amount-header">
+                <div class="usdt-logo-box"><i class="fa-solid fa-coins"></i></div>
+                <div>
+                    <div style="font-size: 12px; color: #777;">USDT Amount</div>
+                    <div style="font-size: 26px; font-weight: bold; color: #111;" id="displayAmount">50 USDT</div>
+                </div>
+            </div>
+
+            <!-- INR Payable Calculation Box (Rate: ₹90 per USDT) -->
+            <div class="inr-payable-box">
+                <div class="label">Total INR Amount to Pay</div>
+                <div class="val" id="displayInrAmount">₹4,500</div>
+                <div class="rate-note">Exchange Rate: 1 USDT = ₹90</div>
+            </div>
+
+            <div class="info-row" style="margin-top: 5px;">
+                <span>Order Number</span>
+                <span class="val-bold"><span id="orderId">ORD8842</span> <button class="copy-btn" onclick="copyText('ORD8842')">Copy</button></span>
+            </div>
+        </div>
+
+        <!-- USDT Wallet Address Card -->
+        <div class="card">
+            <div style="font-size: 14px; font-weight: bold; color: #111; border-bottom: 1px solid #eee; padding-bottom: 8px;">USDT Deposit Wallet (TRC20)</div>
+            
+            <div class="info-row">
+                <span>Network</span>
+                <span class="val-bold" style="color: #137333;">TRON (TRC20)</span>
+            </div>
+            <div class="info-row" style="flex-direction: column; align-items: flex-start; gap: 6px;">
+                <span>Wallet Address</span>
+                <div style="display: flex; width: 100%; justify-content: space-between; align-items: center; background: #f9f9f9; padding: 8px; border-radius: 6px;">
+                    <span class="val-bold" id="walletAddr" style="font-size: 12px;">TXLa9vZ8gP2kLmQ4wRtY1sD6fGhJ8kL3xZ</span>
+                    <button class="copy-btn" onclick="copyText('TXLa9vZ8gP2kLmQ4wRtY1sD6fGhJ8kL3xZ')">Copy</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alternative Company Bank Details Card -->
+        <div class="card">
+            <div style="font-size: 14px; font-weight: bold; color: #111; border-bottom: 1px solid #eee; padding-bottom: 8px;">Or Pay via Company Bank Details (Alternative)</div>
+            
+            <div class="info-row">
+                <span>Account Number</span>
+                <span class="val-bold"><span id="accNum">33290100004921</span> <button class="copy-btn" onclick="copyText('33290100004921')">Copy</button></span>
+            </div>
+            <div class="info-row">
+                <span>Bank Name</span>
+                <span class="val-bold"><span id="bankName">HDFC BANK</span> <button class="copy-btn" onclick="copyText('HDFC BANK')">Copy</button></span>
+            </div>
+            <div class="info-row">
+                <span>Account Holder Name</span>
+                <span class="val-bold"><span id="holderName">HoyoPay SOLUTIONS</span> <button class="copy-btn" onclick="copyText('HoyoPay SOLUTIONS')">Copy</button></span>
+            </div>
+            <div class="info-row">
+                <span>IFSC Code</span>
+                <span class="val-bold"><span id="ifscCode">HDFC0001234</span> <button class="copy-btn" onclick="copyText('HDFC0001234')">Copy</button></span>
+            </div>
+        </div>
+
+        <!-- TxID / UTR & Screenshot Form -->
+        <div class="card">
+            <div class="form-group">
+                <label for="txidInput">Enter Transaction ID (TxID / UTR / Hash)</label>
+                <input type="text" id="txidInput" class="form-input" placeholder="Enter TxID or 12-digit UTR">
+            </div>
+
+            <div class="form-group">
+                <label>Upload Payment Screenshot</label>
+                <div class="upload-box" onclick="document.getElementById('proofInput').click()">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <div id="uploadText">Click here to select screenshot</div>
+                    <input type="file" id="proofInput" style="display: none;" accept="image/*" onchange="fileSelected(this)">
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="cancel-btn" onclick="cancelOrder()">Cancel Order</button>
+                <button class="submit-btn" onclick="submitTask()">Submit Task</button>
+            </div>
+        </div>
+
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="dashboard.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="deposit.html" class="nav-item active">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Deposit</span>
+        </a>
+        <a href="bank.html" class="nav-item">
+            <i class="fas fa-university"></i>
+            <span>Bank</span>
+        </a>
+        <a href="team.html" class="nav-item">
+            <i class="fas fa-users"></i>
+            <span>Team</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>Me</span>
+        </a>
+    </nav>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        // USDT Amount Handle & Calculation (1 USDT = ₹90)
+        let usdtAmount = 50; // Default
+        if(urlParams.get('amount')) {
+            usdtAmount = parseFloat(urlParams.get('amount'));
+        }
+        
+        document.getElementById('displayAmount').innerText = usdtAmount + ' USDT';
+        
+        let calculatedInr = usdtAmount * 90;
+        document.getElementById('displayInrAmount').innerText = '₹' + calculatedInr.toLocaleString('en-IN');
+
+        if(urlParams.get('id')) {
+            document.getElementById('orderId').innerText = urlParams.get('id');
+        }
+
+        function copyText(text) {
+            navigator.clipboard.writeText(text);
+            alert('Copied to clipboard: ' + text);
+        }
+
+        function fileSelected(input) {
+            if(input.files && input.files[0]) {
+                document.getElementById('uploadText').innerText = "File selected: " + input.files[0].name;
+            }
+        }
+
+        function submitTask() {
+            const txid = document.getElementById('txidInput').value.trim();
+            if(txid.length < 6) {
+                alert('Please enter a valid Transaction ID / UTR number!');
+                return;
+            }
+            alert('Task submitted successfully!');
+            window.location.href = 'recharge_history.html';
+        }
+
+        function cancelOrder() {
+            if(confirm('Are you sure you want to cancel this order?')) {
+                alert('Order has been cancelled.');
+                window.location.href = 'recharge_history.html';
+            }
+        }
+
+        // 30 Minutes Countdown Timer
+        let timeInSeconds = 30 * 60;
+        let timerInterval = setInterval(() => {
+            if(timeInSeconds <= 0) {
+                clearInterval(timerInterval);
+                document.getElementById('countdown').innerText = "00:00 (Timeout)";
+                alert('Time expired! This order has timed out.');
+                window.location.href = 'recharge_history.html';
+                return;
+            }
+            timeInSeconds--;
+            let mins = Math.floor(timeInSeconds / 60);
+            let secs = timeInSeconds % 60;
+            document.getElementById('countdown').innerText = `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }, 1000);
+    </script>
+</body>
+</html>

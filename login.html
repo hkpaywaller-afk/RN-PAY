@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log In</title>
+    <!-- FontAwesome Icons के लिए -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f7f7f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            background: #ffffff;
+            padding: 30px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+
+        /* पिछले यूजर की आईडी दिखाने के लिए स्टाइल (ऊपर की तरफ) */
+        .last-user-badge {
+            background-color: #f1f1f1;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #555;
+            text-align: center;
+            margin-bottom: 20px;
+            display: none; /* जब आईडी होगी तभी दिखेगा */
+        }
+
+        .login-title {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 30px;
+            letter-spacing: 1px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 16px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 15px 14px 45px;
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            font-size: 15px;
+            color: #333;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            border-color: #bbb;
+            background-color: #fff;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #666;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            letter-spacing: 1px;
+            transition: background 0.3s ease;
+        }
+
+        .login-btn:hover {
+            background-color: #555;
+        }
+
+        /* रजिस्टर पेज पर जाने के लिए नीचे लिंक */
+        .register-link-container {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .register-link-container a {
+            color: #333;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .register-link-container a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <!-- यहाँ पिछले लॉगिन यूजर की आईडी दिखाई देगी -->
+        <div id="lastUserBadge" class="last-user-badge">
+            Last Logged ID: <span id="displayUserId" style="font-weight: bold; color: #222;"></span>
+        </div>
+
+        <div class="login-title">LOG IN</div>
+        
+        <form id="loginForm">
+            <!-- Phone Number Field -->
+            <div class="input-group">
+                <i class="fa-solid fa-phone"></i>
+                <input type="tel" id="loginPhone" placeholder="Enter Your Phone Number" required>
+            </div>
+
+            <!-- Password Field -->
+            <div class="input-group">
+                <i class="fa-solid fa-lock"></i>
+                <input type="password" id="loginPassword" placeholder="Enter Password" required>
+            </div>
+
+            <!-- Login Button -->
+            <button type="submit" class="login-btn">LOG IN</button>
+        </form>
+
+        <!-- Register Page Link -->
+        <div class="register-link-container">
+            Don't have an account? <a href="register.html">Register</a>
+        </div>
+    </div>
+
+    <script>
+        // पेज खुलने पर चेक करेगा कि क्या ब्राउज़र में पहले से कोई यूजर आईडी सेव है (लॉग आउट होने के बाद)
+        window.onload = function() {
+            const savedUserId = localStorage.getItem('lastUserId');
+            if (savedUserId) {
+                document.getElementById('displayUserId').innerText = savedUserId;
+                document.getElementById('lastUserBadge').style.display = 'block';
+                
+                // अगर आप चाहें तो फोन नंबर वाले बॉक्स में भी ऑटोमैटिक पुराना नंबर भर सकते हैं:
+                const savedPhone = localStorage.getItem('lastUserPhone');
+                if(savedPhone) {
+                    document.getElementById('loginPhone').value = savedPhone;
+                }
+            }
+        };
+
+        // लॉगिन फॉर्म सबमिट होने पर
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const phone = document.getElementById('loginPhone').value;
+            const password = document.getElementById('loginPassword').value;
+
+            // जब बैकएंड बनेगा, तो यहाँ API कॉल होगी। 
+// अभी टेस्टिंग के लिए हम मान लेते हैं कि लॉगिन सफल होने पर यूजर को उसकी आईडी मिल गई (जैसे: UID849201)
+            const mockUserId = "UID849201"; 
+
+            // डेटा को ब्राउज़र में सेव कर देते हैं ताकि लॉग आउट होने के बाद भी यह याद रहे
+            localStorage.setItem('lastUserId', mockUserId);
+            localStorage.setItem('lastUserPhone', phone);
+
+            alert("लॉगिन सफल रहा!");
+            // window.location.href = "profile.html"; // इसके बाद प्रोफाइल पेज पर भेज सकते हैं
+        });
+    </script>
+
+</body>
+</html>

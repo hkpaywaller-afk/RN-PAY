@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HoyoPay - Deposit</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #f7f7f7; padding-bottom: 90px; }
+        .top-tabs-container { display: flex; background-color: #f7f7f7; padding: 15px 20px 10px 20px; gap: 25px; border-bottom: 1px solid #eaeaea; }
+        .top-tab { font-size: 20px; font-weight: bold; color: #888; cursor: pointer; text-decoration: none; }
+        .top-tab.active { color: #111; position: relative; }
+        .top-tab.active::after { content: ''; position: absolute; bottom: -10px; left: 0; width: 100%; height: 3px; background-color: #111; border-radius: 2px; }
+        .reward-info-box { width: 90%; margin: 15px auto; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); display: flex; justify-content: space-between; align-items: center; }
+        .reward-text-left { font-size: 14px; font-weight: bold; color: #111; }
+        .reward-text-left span { color: #eab308; }
+        .how-buy-btn { font-size: 13px; color: #333; cursor: pointer; background: none; border: none; display: flex; align-items: center; gap: 6px; font-weight: 500; }
+        .how-buy-btn i { font-size: 16px; color: #111; }
+        .filter-section { width: 90%; margin: 15px auto; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+        .sort-dropdown-box { background: white; padding: 10px 12px; border-radius: 8px; font-size: 12px; color: #333; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.03); display: flex; align-items: center; gap: 6px; font-weight: 500; user-select: none; }
+        .min-max-box { display: flex; align-items: center; gap: 4px; background: white; padding: 6px 8px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
+        .min-max-input { width: 48px; border: none; outline: none; font-size: 11px; background: #f1f1f1; padding: 4px; border-radius: 4px; text-align: center; color: #333; }
+        .refresh-btn { background: #111; color: white; border: none; padding: 10px 14px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; }
+        .packages-container { width: 90%; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+        .package-card { background: white; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
+        .pkg-left { display: flex; flex-direction: column; gap: 6px; }
+        .pkg-amount { font-size: 18px; font-weight: bold; color: #111; }
+        .pkg-details-row { display: flex; gap: 20px; font-size: 13px; color: #777; }
+        .pkg-details-row span { display: flex; flex-direction: column; gap: 2px; }
+        .pkg-label-sub { font-size: 11px; color: #888; }
+        .pkg-val-sub { font-size: 14px; font-weight: bold; color: #111; }
+        .pkg-quota { color: #0d9488 !important; }
+        .buy-action-btn { background: #111; color: white; border: none; padding: 8px 26px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; text-decoration: none; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 70px; background-color: white; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); border-top-left-radius: 20px; border-top-right-radius: 20px; z-index: 1000; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #888; text-decoration: none; font-size: 11px; cursor: pointer; }
+        .nav-item.active { color: #111; font-weight: bold; }
+        .nav-item i { font-size: 18px; }
+        .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 2000; }
+        .modal-box { width: 85%; max-width: 400px; background: #fff; padding: 20px; border-radius: 12px; text-align: center; position: relative; }
+        .close-btn-right { position: absolute; top: 15px; right: 15px; font-size: 22px; color: #aaa; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <!-- टॉप टैब्स (INR और USDT) -->
+    <div class="top-tabs-container">
+        <span class="top-tab active">INR</span>
+        <a href="usdt.html" class="top-tab">USDT</a>
+    </div>
+
+    <!-- इंसेंटिव और ट्यूटोरियल लिंक बार -->
+    <div class="reward-info-box">
+        <div class="reward-text-left">5 more for <span>10 reward</span></div>
+        <button class="how-buy-btn" onclick="openVideo()">
+            <i class="far fa-play-circle"></i> How Buy Quota?
+        </button>
+    </div>
+
+    <!-- फिल्टर और सॉर्टिंग कंट्रोल्स -->
+    <div class="filter-section">
+        <div class="sort-dropdown-box" id="sortToggleBtn" onclick="toggleSortOrder()">
+            <span id="sortText">From low to high</span>
+            <i class="fas fa-chevron-down" id="sortIcon" style="font-size: 10px;"></i>
+        </div>
+
+        <div class="min-max-box">
+            <input type="number" class="min-max-input" placeholder="Min" id="minInput">
+            <span>-</span>
+            <input type="number" class="min-max-input" placeholder="Max" id="maxInput">
+        </div>
+
+        <button class="refresh-btn" onclick="filterPackages()">Refresh</button>
+    </div>
+
+    <!-- पैकेजेस की डायनेमिक लिस्ट -->
+    <div class="packages-container" id="packagesList">
+        <!-- जावास्क्रिप्ट के जरिए ऑर्डर्स यहाँ लोड होंगे -->
+    </div>
+
+    <!-- वीडियो प्लेयर पॉपअप -->
+    <div id="videoModal" class="custom-modal">
+        <div class="modal-box" style="background:#000;">
+            <span class="close-btn-right" onclick="closeVideo()" style="color:#fff;">&times;</span>
+            <h3 style="color:#fff; margin-bottom: 15px; font-size: 16px;">How Buy Quota Tutorial</h3>
+            <video id="tutorialVideo" controls style="width:100%; border-radius:8px;">
+                <source src="buy-quota-tutorial.mp4" type="video/mp4">
+                आपका ब्राउज़र वीडियो टैग को सपोर्ट नहीं करता।
+            </video>
+        </div>
+    </div>
+
+    <!-- बॉटम नेविगेशन बार -->
+    <nav class="bottom-nav">
+        <a href="dashboard.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="deposit.html" class="nav-item active">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Deposit</span>
+        </a>
+        <a href="bank.html" class="nav-item">
+            <i class="fas fa-university"></i>
+            <span>Bank</span>
+        </a>
+        <a href="team.html" class="nav-item">
+            <i class="fas fa-users"></i>
+            <span>Team</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>Me</span>
+        </a>
+    </nav>
+
+    <!-- जावास्क्रिप्ट लॉजिक: 200 से 1000 तक छोटे ऑर्डर्स ज़्यादा रखने के लिए -->
+    <script>
+        let isAscending = true;
+        let allPackages = [];
+
+        function generateDemoOrders() {
+            const totalOrders = 1000;
+
+            for (let i = 0; i < totalOrders; i++) {
+                let randomAmount;
+                // 70% चांस है कि ऑर्डर 200 से 1000 के बीच का छोटा ऑर्डर हो
+                if (Math.random() < 0.70) {
+                    randomAmount = Math.floor(200 + Math.random() * (1000 - 200 + 1));
+                } else {
+                    // बाकी 30% ऑर्डर्स 1000 से 50000 के बीच के बड़े ऑर्डर्स होंगे
+                    randomAmount = Math.floor(1000 + Math.random() * (50000 - 1000 + 1));
+                }
+
+                // अमाउंट को 100 के गुणक (multiple) में सेट करना ताकि साफ़ दिखे
+                randomAmount = Math.round(randomAmount / 100) * 100;
+                if (randomAmount < 200) randomAmount = 200;
+                if (randomAmount > 50000) randomAmount = 50000;
+
+                let income = (randomAmount * 0.04).toFixed(2);
+                let quota = (parseFloat(randomAmount) + parseFloat(income)).toFixed(2);
+
+                allPackages.push({
+                    amount: randomAmount,
+                    income: income,
+                    quota: quota
+                });
+            }
+
+            sortAndRender();
+        }
+
+        function toggleSortOrder() {
+            isAscending = !isAscending;
+            const sortText = document.getElementById('sortText');
+            if (isAscending) {
+                sortText.innerText = "From low to high";
+            } else {
+                sortText.innerText = "From high to low";
+            }
+            sortAndRender();
+        }
+
+        function filterPackages() {
+            sortAndRender();
+        }
+
+        function sortAndRender() {
+            const minVal = parseFloat(document.getElementById('minInput').value) || 0;
+            const maxVal = parseFloat(document.getElementById('maxInput').value) || Infinity;
+
+            let filtered = allPackages.filter(pkg => pkg.amount >= minVal && pkg.amount <= maxVal);
+
+            filtered.sort((a, b) => {
+                if (isAscending) {
+                    return a.amount - b.amount;
+                } else {
+                    return b.amount - a.amount;
+                }
+            });
+
+            const container = document.getElementById('packagesList');
+            container.innerHTML = '';
+
+            filtered.forEach(pkg => {
+                const card = document.createElement('div');
+                card.className = 'package-card';
+                card.setAttribute('data-amount', pkg.amount);
+
+                card.innerHTML = `
+                    <div class="pkg-left">
+                        <div class="pkg-amount">${pkg.amount} INR</div>
+                        <div class="pkg-details-row">
+                            <span><span class="pkg-label-sub">Income</span><span class="pkg-val-sub">${pkg.income} (4%)</span></span>
+                            <span><span class="pkg-label-sub">Quota</span><span class="pkg-val-sub pkg-quota">+${pkg.quota}</span></span>
+                        </div>
+                    </div>
+                    <a href="task_details_inr.html?amount=${pkg.amount}" class="buy-action-btn">Buy</a>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function openVideo() {
+            document.getElementById('videoModal').style.display = 'flex';
+            document.getElementById('tutorialVideo').play();
+        }
+
+        function closeVideo() {
+            const vid = document.getElementById('tutorialVideo');
+            vid.pause();
+            vid.currentTime = 0;
+            document.getElementById('videoModal').style.display = 'none';
+        }
+
+        window.onload = function() {
+            generateDemoOrders();
+        };
+    </script>
+</body>
+</html>
