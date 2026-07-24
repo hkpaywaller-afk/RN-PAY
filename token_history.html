@@ -9,22 +9,18 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         body { background-color: #f7f7f7; padding-bottom: 95px; color: #111; }
         
-        /* टॉप हेडिंग */
         .header { background: #fff; padding: 16px 20px; display: flex; align-items: center; justify-content: flex-start; gap: 20px; border-bottom: 1px solid #eaeaea; position: sticky; top: 0; z-index: 100; }
         .back-btn { font-size: 18px; color: #111; text-decoration: none; }
         .header-title { font-size: 18px; font-weight: bold; color: #111; }
 
         .container { width: 92%; max-width: 480px; margin: 15px auto; display: flex; flex-direction: column; gap: 12px; }
 
-        /* टाइप ड्रॉपडाउन बटन */
         .type-dropdown-btn { background: #f0f0f0; border: none; padding: 10px 16px; border-radius: 10px; font-size: 14px; font-weight: bold; color: #111; display: inline-flex; align-items: center; gap: 10px; cursor: pointer; width: fit-content; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .type-dropdown-btn i { font-size: 12px; color: #555; }
 
-        /* हिस्ट्री कार्ड लिस्ट */
         .history-list { display: flex; flex-direction: column; gap: 12px; }
         .history-card { background: #fff; padding: 16px; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); display: flex; flex-direction: column; gap: 8px; border: 1px solid #f0f0f0; }
         
-        /* हर टाइप के लिए अलग-अलग कलर्स और स्टाइल्स */
         .card-type-title { font-size: 14px; font-weight: 700; display: inline-block; padding: 3px 10px; border-radius: 6px; width: fit-content; }
         
         .type-recharge { background: #e0f2fe; color: #0284c7; }
@@ -45,7 +41,6 @@
         .card-label { color: #888; }
         .card-value { font-weight: 600; color: #111; display: flex; align-items: center; gap: 6px; }
         
-        /* बैंक लोगो इमेज स्टाइल */
         .bank-logo-img { width: 22px; height: 22px; border-radius: 50%; object-fit: contain; background: #fff; padding: 1px; border: 1px solid #ddd; }
 
         .card-desc { font-size: 13px; font-weight: bold; color: #222; word-break: break-all; }
@@ -53,7 +48,6 @@
 
         .empty-box { text-align: center; padding: 40px; background: #fff; border-radius: 12px; color: #777; font-size: 13px; border: 1px solid #eee; }
 
-        /* बॉटम पॉपअप मोडल */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: flex-end; flex-direction: column; z-index: 2000; }
         .modal-sheet { background: #fff; width: 100%; max-height: 75vh; border-top-left-radius: 24px; border-top-right-radius: 24px; padding: 20px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 -10px 25px rgba(0,0,0,0.2); animation: slideUp 0.3s ease-out; }
         
@@ -68,7 +62,6 @@
         .sheet-option-item.selected { font-weight: bold; color: #111; }
         .sheet-option-item.selected::after { content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900; color: #111; font-size: 14px; }
 
-        /* बॉटम नेविगेशन बार */
         .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 70px; background-color: white; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); border-top: 1px solid #f0f0f0; z-index: 1000; }
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #888; text-decoration: none; font-size: 11px; cursor: pointer; }
         .nav-item.active { color: #111; font-weight: bold; }
@@ -77,7 +70,6 @@
 </head>
 <body>
 
-    <!-- टॉप हेडर -->
     <div class="header">
         <a href="dashboard.html" class="back-btn"><i class="fas fa-chevron-left"></i></a>
         <div class="header-title">Token History</div>
@@ -85,32 +77,26 @@
 
     <div class="container">
         
-        <!-- टाइप ड्रॉपडाउन बटन -->
         <button class="type-dropdown-btn" onclick="openTypeModal()">
             <span id="currentSelectedType">All</span> <i class="fas fa-chevron-down"></i>
         </button>
 
-        <!-- हिस्ट्री लिस्ट कंटेनर -->
         <div class="history-list" id="historyListContainer">
-            <!-- डायनेमिक डेटा यहाँ लोड होगा -->
+            <div class="empty-box">लोड हो रहा है...</div>
         </div>
 
     </div>
 
-    <!-- टाइप सलेक्शन बॉटम शीट मोडल -->
     <div id="typeModal" class="modal-overlay" onclick="closeTypeModalOutside(event)">
         <div class="modal-sheet">
             <div class="sheet-header">
                 Type
                 <span class="sheet-close" onclick="closeTypeModal()">&times;</span>
             </div>
-            <div class="sheet-options-container" id="typeOptionsList">
-                <!-- ऑप्शंस जावास्क्रिप्ट से आएंगे -->
-            </div>
+            <div class="sheet-options-container" id="typeOptionsList"></div>
         </div>
     </div>
 
-    <!-- बॉटम नेविगेशन बार -->
     <nav class="bottom-nav">
         <a href="dashboard.html" class="nav-item">
             <i class="fas fa-home"></i>
@@ -152,37 +138,36 @@
             "Game withdrawal"
         ];
 
-        // टेस्ट डेटा: इसमें आप किसी भी बैंक का नाम (जैसे HDFC, Axis, Kotak, BOB या कोई भी ग्रामीण बैंक) डाल सकते हैं
-        let tokenHistoryData = [
-            { type: "Commission", amount: "+1.08", desc: "20028877 Top up 1080.00 commission 1.08", time: "2026-07-22 11:06:23" },
-            { 
-                type: "Receive", 
-                amount: "+299.12", 
-                desc: "Receive OS1eaho64nvk deduct 299.12", 
-                bankName: "HDFC Bank", 
-                accountLast4: "4589", 
-                utr: "620057338369", 
-                time: "2026-07-19 12:06:12" 
-            },
-            { 
-                type: "Receive", 
-                amount: "+500.00", 
-                desc: "Receive payment transfer", 
-                bankName: "State Bank of India", 
-                accountLast4: "9912", 
-                utr: "620057338370", 
-                time: "2026-07-18 10:15:00" 
-            },
-            { type: "Reward", amount: "+50.00", desc: "Daily Login Task Reward Credited", time: "2026-07-18 08:30:00" },
-            { type: "Recharge", amount: "+1000.00", desc: "UPI Gateway Direct Deposit Topup", time: "2026-07-17 15:20:10" }
-        ];
-
+        let tokenHistoryData = [];
         let activeType = "All";
 
         window.onload = function() {
             renderTypeOptions();
-            renderHistory(activeType);
+            fetchTokenHistory();
         };
+
+        async function fetchTokenHistory() {
+            const userUid = localStorage.getItem('userUid');
+            if (!userUid) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                const response = await fetch(`https://rn-pay.onrender.com/api/history/${userUid}`);
+                const result = await response.json();
+
+                if (result.success && result.data) {
+                    tokenHistoryData = result.data;
+                    renderHistory(activeType);
+                } else {
+                    document.getElementById('historyListContainer').innerHTML = `<div class="empty-box">कोई रिकॉर्ड नहीं मिला।</div>`;
+                }
+            } catch (error) {
+                console.error("Token history fetch error:", error);
+                document.getElementById('historyListContainer').innerHTML = `<div class="empty-box" style="color:#dc2626;">डेटा लोड करने में विफल।</div>`;
+            }
+        }
 
         function renderTypeOptions() {
             const container = document.getElementById('typeOptionsList');
@@ -218,6 +203,7 @@
         }
 
         function getTypeClass(typeName) {
+            if(!typeName) return 'type-commission';
             switch(typeName.toLowerCase()) {
                 case 'recharge': return 'type-recharge';
                 case 'reward': return 'type-reward';
@@ -236,13 +222,13 @@
             }
         }
 
-        // यह फंक्शन बैंक के नाम से उसका ऑफिशियल डोमेन ढूंढकर ऑटोमैटिक लोगो निकाल देगा (India के हर बैंक के लिए काम करेगा)
         function getBankLogoUrl(bankName) {
+            if(!bankName) return 'https://www.google.com/s2/favicons?domain=bank.com&sz=128';
             let name = bankName.toLowerCase();
-            let domain = "sbi.co.in"; // Default
+            let domain = "sbi.co.in";
 
             if (name.includes("hdfc")) domain = "hdfcbank.com";
-            else if (name.includes("state bank of india") || name.includes("state bank")) domain = "sbi.co.in";
+            else if (name.includes("state bank of india") || name.includes("sbi")) domain = "sbi.co.in";
             else if (name.includes("icici")) domain = "icicibank.com";
             else if (name.includes("axis")) domain = "axisbank.com";
             else if (name.includes("kotak")) domain = "kotak.com";
@@ -255,14 +241,7 @@
             else if (name.includes("yes")) domain = "yesbank.in";
             else if (name.includes("paytm")) domain = "paytm.com";
             else if (name.includes("airtel")) domain = "airtel.in";
-            else if (name.includes("state") || name.includes(" ग्रामीण")) domain = "sbi.co.in";
-            else {
-                // अगर कोई और लोकल या नया बैंक हुआ तो उसके नाम से मिलता-जुलता डोमेन बना लेगा या गूगल फेविकॉन यूज़ करेगा
-                let cleanName = name.replace(/bank|limited|ltd|of|india/gi, "").trim().split(" ")[0];
-                if(cleanName) domain = cleanName + ".com";
-            }
 
-            // Google Favicon API से ऑफिशियल लोगो फेच करना
             return `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
         }
 
@@ -272,7 +251,10 @@
 
             let filtered = tokenHistoryData;
             if (filterType !== "All") {
-                filtered = tokenHistoryData.filter(item => item.type.toLowerCase() === filterType.toLowerCase());
+                filtered = tokenHistoryData.filter(item => {
+                    let itemType = item.type || item.category || 'Commission';
+                    return itemType.toLowerCase() === filterType.toLowerCase();
+                });
             }
 
             if (filtered.length === 0) {
@@ -282,16 +264,19 @@
 
             filtered.forEach(item => {
                 let extraDetails = '';
+                let itemType = item.type || item.category || 'Commission';
+                let itemAmount = item.amount || '0.00';
+                let itemDesc = item.desc || item.description || item.remark || '---';
+                let itemTime = item.time || item.createdAt || '---';
                 
-                // अगर टाइप 'Receive' है तो जो भी बैंक ऐड किया जाएगा उसका ऑफिशियल लोगो ऑटोमैटिक आ जाएगा
-                if(item.type.toLowerCase() === 'receive' && item.bankName) {
+                if(itemType.toLowerCase() === 'receive' && item.bankName) {
                     let logoUrl = getBankLogoUrl(item.bankName);
                     extraDetails += `
                         <div class="card-row">
                             <span class="card-label">Bank Account</span>
                             <span class="card-value">
                                 <img src="${logoUrl}" class="bank-logo-img" alt="Bank Logo" onerror="this.onerror=null; this.src='https://www.google.com/s2/favicons?domain=bank.com&sz=128';">
-                                ${item.bankName} (...${item.accountLast4})
+                                ${item.bankName} (...${item.accountLast4 || 'XXXX'})
                             </span>
                         </div>
                     `;
@@ -306,25 +291,25 @@
                     `;
                 }
 
-                let badgeClass = getTypeClass(item.type);
+                let badgeClass = getTypeClass(itemType);
 
                 container.innerHTML += `
                     <div class="history-card">
                         <div>
-                            <span class="card-type-title ${badgeClass}">${item.type}</span>
+                            <span class="card-type-title ${badgeClass}">${itemType}</span>
                         </div>
                         <div class="card-row" style="margin-top: 4px;">
                             <span class="card-label">Amount</span>
-                            <span class="card-value" style="font-size: 16px;">${item.amount}</span>
+                            <span class="card-value" style="font-size: 16px;">${itemAmount}</span>
                         </div>
                         ${extraDetails}
                         <div class="card-row" style="align-items: flex-start; gap: 10px;">
                             <span class="card-label">Desc</span>
-                            <span class="card-desc" style="text-align: right; max-width: 280px;">${item.desc}</span>
+                            <span class="card-desc" style="text-align: right; max-width: 280px;">${itemDesc}</span>
                         </div>
                         <div class="card-row">
                             <span class="card-label">Time</span>
-                            <span class="card-time">${item.time}</span>
+                            <span class="card-time">${itemTime}</span>
                         </div>
                     </div>
                 `;
