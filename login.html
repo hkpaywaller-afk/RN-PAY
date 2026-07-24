@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Log In</title>
+    <title>NRPay - Log In</title>
     <!-- FontAwesome Icons के लिए -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -30,18 +30,6 @@
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
             position: relative;
-        }
-
-        /* पिछले यूजर की आईडी दिखाने के लिए स्टाइल (ऊपर की तरफ) */
-        .last-user-badge {
-            background-color: #f1f1f1;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 13px;
-            color: #555;
-            text-align: center;
-            margin-bottom: 20px;
-            display: none; /* जब आईडी होगी तभी दिखेगा */
         }
 
         .login-title {
@@ -87,7 +75,7 @@
         .login-btn {
             width: 100%;
             padding: 14px;
-            background-color: #666;
+            background-color: #111;
             color: white;
             border: none;
             border-radius: 8px;
@@ -100,7 +88,7 @@
         }
 
         .login-btn:hover {
-            background-color: #555;
+            background-color: #333;
         }
 
         /* रजिस्टर पेज पर जाने के लिए नीचे लिंक */
@@ -112,7 +100,7 @@
         }
 
         .register-link-container a {
-            color: #333;
+            color: #111;
             font-weight: bold;
             text-decoration: none;
         }
@@ -125,11 +113,6 @@
 <body>
 
     <div class="login-container">
-        <!-- यहाँ पिछले लॉगिन यूजर की आईडी दिखाई देगी -->
-        <div id="lastUserBadge" class="last-user-badge">
-            Last Logged ID: <span id="displayUserId" style="font-weight: bold; color: #222;"></span>
-        </div>
-
         <div class="login-title">LOG IN</div>
         
         <form id="loginForm">
@@ -156,19 +139,11 @@
     </div>
 
     <script>
-        // पेज खुलने पर चेक करेगा कि क्या ब्राउज़र में पहले से कोई यूजर आईडी सेव है (लॉग आउट होने के बाद)
+        // पेज खुलते ही पुराना सारा लोकल डेटा साफ़ कर दें ताकि दो अलग यूजर्स का डेटा आपस में मिक्स न हो
         window.onload = function() {
-            const savedUserId = localStorage.getItem('lastUserId');
-            if (savedUserId) {
-                document.getElementById('displayUserId').innerText = savedUserId;
-                document.getElementById('lastUserBadge').style.display = 'block';
-                
-                // अगर आप चाहें तो फोन नंबर वाले बॉक्स में भी ऑटोमैटिक पुराना नंबर भर सकते हैं:
-                const savedPhone = localStorage.getItem('lastUserPhone');
-                if(savedPhone) {
-                    document.getElementById('loginPhone').value = savedPhone;
-                }
-            }
+            // यदि आप चाहें तो पुराना इनपुट खाली रख सकते हैं ताकि फ्रेश लॉगिन हो
+            localStorage.removeItem('userUid');
+            localStorage.removeItem('userPhone');
         };
 
         // लॉगिन फॉर्म सबमिट होने पर
@@ -178,8 +153,8 @@
             const password = document.getElementById('loginPassword').value;
 
             try {
-                // आपके बैकएंड सर्वर पर API कॉल
-                const response = await fetch('/api/login', {
+                // आपके Render लाइव बैकएंड सर्वर पर API कॉल
+                const response = await fetch('https://rn-pay.onrender.com/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ phone, password })
@@ -188,28 +163,23 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    // डेटा को ब्राउज़र में सेव कर देते हैं
-                    localStorage.setItem('userUid', data.uid);
-                    localStorage.setItem('userPhone', data.phone);
-                    localStorage.setItem('lastUserId', data.uid);
-                    localStorage.setItem('lastUserPhone', phone);
+                    // सबसे पहले पुराना सारा लोकल स्टोरेज साफ़ करें
+                    localStorage.clear();
 
+                    // अब सिर्फ इस नए लॉगिन हुए यूजर का सटीक डेटा सेव करें
+                    localStorage.setItem('userUid', data.uid);       // MongoDB से आया हुआ इसका अपना यूनिक UID
+                    localStorage.setItem('userPhone', data.phone);   // इसका अपना फोन नंबर
+                    
                     alert("लॉगिन सफल रहा!");
                     
-                    // लॉगिन सफल होने के बाद सीधे डैशबोर्ड पर रीडायरेक्ट कर देगा
+                    // डैशबोर्ड पर रीडायरेक्ट करें जहाँ MongoDB से इसी UID का फ्रेश डेटा लोड होगा
                     window.location.href = "dashboard.html";
                 } else {
-                    alert(data.message || "Login failed!");
+                    alert(data.message || "Login failed! Incorrect phone or password.");
                 }
             } catch (error) {
                 console.error("Error:", error);
-                // अगर सर्वर कनेक्ट न हो या टेस्टिंग के लिए डायरेक्ट भेजना हो तो यह फॉールबैक काम करेगा
-                const mockUserId = "UID20001"; 
-                localStorage.setItem('lastUserId', mockUserId);
-                localStorage.setItem('lastUserPhone', phone);
-
-                alert("लॉगिन सफल रहा!");
-                window.location.href = "dashboard.html";
+                alert("सर्वर से कनेक्ट करने में समस्या आ रही है। कृपया दोबारा कोशिश करें।");
             }
         });
     </script>
