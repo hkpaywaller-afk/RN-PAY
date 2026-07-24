@@ -56,7 +56,8 @@
         .banner-img-bg {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: cover;
+            object-fit: contain; /* यहाँ 'cover' की जगह 'contain' कर दिया है ताकि मोबाइल पर पूरा बैनर बिना कटे दिखे */
+            background-color: #000; /* साइड की खाली जगह पर ब्लैक बैकग्राउंड रहेगा */
             z-index: 1;
         }
 
