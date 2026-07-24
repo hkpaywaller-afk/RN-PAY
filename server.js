@@ -25,12 +25,13 @@ mongoose.connect(MONGO_URI).then(async () => {
     console.error('Database connection error:', err);
 });
 
-// 1. यूजर स्कीमा (User Schema)
+// 1. यूजर स्कीमा (User Schema - टीम और इनवाइट कोड जोड़ा गया है)
 const userSchema = new mongoose.Schema({
     phone: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     uid: { type: String, required: true, unique: true },
     balance: { type: Number, default: 674.22 },
+    invitedBy: { type: String, default: '' }, // किसने इनवाइट किया (स्पॉन्सर का UID)
     banks: [{
         holderName: String,
         accNumber: String,
@@ -75,7 +76,8 @@ async function createDefaultAdminUser() {
                 phone: adminPhone,
                 password: "ADMIN123@",
                 uid: nextUidNumber.toString(),
-                balance: 5000.00
+                balance: 5000.00,
+                invitedBy: "Admin"
             });
 
             await defaultAdmin.save();
@@ -88,7 +90,7 @@ async function createDefaultAdminUser() {
 
 // --- API ROUTES ---
 
-// A. रजिस्ट्रेशन एपीआई (Register API)
+// A. रजिस्ट्रेशन एपीआई (Register API - इनवाइट कोड सेव करने के साथ)
 app.post('/api/register', async (req, res) => {
     try {
         const { phone, password, inviteCode } = req.body;
@@ -104,7 +106,8 @@ app.post('/api/register', async (req, res) => {
         const newUser = new User({
             phone,
             password,
-            uid: nextUid
+            uid: nextUid,
+            invitedBy: inviteCode || '20001' // यहाँ इनवाइट करने वाले का UID सेव होगा
         });
 
         await newUser.save();
@@ -210,6 +213,18 @@ app.get('/api/history/:uid', async (req, res) => {
         const { uid } = req.params;
         const historyList = await Order.find({ uid }).sort({ _id: -1 });
         res.status(200).json({ success: true, data: historyList });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// G. टीम के सदस्यों को फेच करने की नई एपीआई (Fetch Team Members API)
+app.get('/api/team/:uid', async (req, res) => {
+    try {
+        const { uid } = req.params;
+        // डेटाबेस में से उन यूजर्स को ढूंढो जिनका invitedBy इस UID से मैच करता है
+        const teamMembers = await User.find({ invitedBy: uid }).select('uid phone balance createdAt -_id');
+        res.status(200).json({ success: true, count: teamMembers.length, data: teamMembers });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
