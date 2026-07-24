@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -165,12 +165,12 @@
             if (inviteCode) {
                 inviteInput.value = inviteCode;
             } else {
-                inviteInput.value = "Oeahoyopbkbe"; 
+                inviteInput.value = "20001"; // डिफ़ॉल्ट एडमिन का UID या कोड
             }
         };
 
-        // फॉर्म सबमिट होने पर डेटा संभालने के लिए
-        document.getElementById('registerForm').addEventListener('submit', function(e) {
+        // फॉर्म सबमिट होने पर डेटा संभालने और बैकएंड पर भेजने के लिए
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const phone = document.getElementById('phone').value;
             const password = document.getElementById('password').value;
@@ -178,12 +178,31 @@
             const inviteCode = document.getElementById('inviteCode').value;
 
             if (password !== confirmPassword) {
-                alert("पासवर्ड मेल नहीं खा रहा है!");
+                alert("Passwords do not match!");
                 return;
             }
 
-            console.log({ phone, password, inviteCode });
-            alert("रजिस्टर प्रक्रिया सफल रही!");
+            try {
+                // बैकएंड सर्वर पर रजिस्ट्रेशन की API कॉल
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone, password, inviteCode })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert("Registration successful! Your UID is: " + data.uid);
+                    // रजिस्टर होने के बाद सीधे लॉगिन पेज पर भेज देगा
+                    window.location.href = "login.html";
+                } else {
+                    alert(data.message || "Registration failed!");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Error connecting to the server!");
+            }
         });
     </script>
 
