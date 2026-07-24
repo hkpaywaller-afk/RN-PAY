@@ -112,6 +112,86 @@
         .login-link-container a:hover {
             text-decoration: underline;
         }
+
+        /* APK डाउनलोड पॉपअप मॉडल के लिए स्टाइल */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: #ffffff;
+            width: 90%;
+            max-width: 340px;
+            padding: 25px 20px;
+            border-radius: 14px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            animation: scaleUp 0.3s ease;
+        }
+
+        @keyframes scaleUp {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-icon {
+            font-size: 45px;
+            color: #16a34a;
+            margin-bottom: 15px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #111;
+            margin-bottom: 8px;
+        }
+
+        .modal-desc {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .download-apk-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #111;
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: background 0.2s;
+        }
+
+        .download-apk-btn:hover {
+            background-color: #333;
+        }
+
+        .skip-login-btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: transparent;
+            color: #666;
+            border: none;
+            font-size: 13px;
+            cursor: pointer;
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -154,6 +234,19 @@
         </div>
     </div>
 
+    <!-- एपीके डाउनलोड पॉपअप मॉडल -->
+    <div id="downloadModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-icon"><i class="fa-solid fa-circle-check"></i></div>
+            <div class="modal-title">Registration Successful!</div>
+            <div class="modal-desc" id="successMsg">बधाई हो! आपका अकाउंट बन गया है। बेहतर अनुभव के लिए हमारा ऐप डाउनलोड करें।</div>
+            <a href="https://www.webtonative.com/api/v1/demo/download/6a62273352d8bc6b85d5d66c/ANDROID?t=1784895569664" class="download-apk-btn" target="_blank">
+                <i class="fa-solid fa-download"></i> Download App (APK)
+            </a>
+            <button class="skip-login-btn" onclick="goToLogin()">सीधे लॉगिन पर जाएं</button>
+        </div>
+    </div>
+
     <script>
         // यूआरएल से ऑटोमैटिक इनवाइट कोड कैप्चर करने का जावास्क्रिप्ट कोड
         window.onload = function() {
@@ -193,17 +286,23 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    alert("Registration successful! Your UID is: " + data.uid);
-                    // रजिस्टर होने के बाद सीधे लॉगिन पेज पर भेज देगा
-                    window.location.href = "login.html";
+                    // UID के साथ सक्सेस मैसेज सेट करें और पॉपअप दिखाएं
+                    document.getElementById('successMsg').innerText = `सफलतापूर्वक रजिस्टर हो गया! आपका UID: ${data.uid || 'N/A'}. ऐप डाउनलोड करें।`;
+                    document.getElementById('downloadModal').style.display = 'flex';
                 } else {
                     alert(data.message || "Registration failed!");
                 }
             } catch (error) {
                 console.error("Error:", error);
+                // अगर सर्वर से कनेक्ट न हो तो भी यूजर को सुविधा के लिए पॉपअप दिखा सकते हैं या अलर्ट दे सकते हैं
                 alert("Error connecting to the server!");
             }
         });
+
+        // लॉगिन पेज पर भेजने का फंक्शन
+        function goToLogin() {
+            window.location.href = "login.html";
+        }
     </script>
 
 </body>
