@@ -177,7 +177,7 @@
             if (currentHost === "localhost" || currentHost === "127.0.0.1") {
                 baseUrl = window.location.origin + "/register.html";
             } else {
-                baseUrl = "https://rn-pay.web.app.com/register.html"; // आपका नया डोमेन
+                baseUrl = "https://rn-pay.onrender.com/register.html"; // आपका नया डोमेन
             }
 
             let fullLink = baseUrl + "?invite=" + userUid;
@@ -187,7 +187,7 @@
         function copyInviteLink() {
             let userUid = localStorage.getItem('userUid') || '20001';
             let currentHost = window.location.hostname;
-            let baseUrl = (currentHost === "localhost" || currentHost === "127.0.0.1") ? window.location.origin + "/register.html" : "https://rn-pay.web.app.com/register.html";
+            let baseUrl = (currentHost === "localhost" || currentHost === "127.0.0.1") ? window.location.origin + "/register.html" : "https://rn-pay.onrender.com/register.html";
             let fullLink = baseUrl + "?invite=" + userUid;
 
             navigator.clipboard.writeText(fullLink).then(() => {
