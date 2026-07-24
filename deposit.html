@@ -114,7 +114,7 @@
         </a>
     </nav>
 
-    <!-- जावास्क्रिप्ट लॉजिक: 200 से 1000 तक छोटे ऑर्डर्स ज़्यादा रखने के लिए -->
+    <!-- जावास्क्रिप्ट लॉजिक -->
     <script>
         let isAscending = true;
         let allPackages = [];
@@ -124,15 +124,12 @@
 
             for (let i = 0; i < totalOrders; i++) {
                 let randomAmount;
-                // 70% चांस है कि ऑर्डर 200 से 1000 के बीच का छोटा ऑर्डर हो
                 if (Math.random() < 0.70) {
                     randomAmount = Math.floor(200 + Math.random() * (1000 - 200 + 1));
                 } else {
-                    // बाकी 30% ऑर्डर्स 1000 से 50000 के बीच के बड़े ऑर्डर्स होंगे
                     randomAmount = Math.floor(1000 + Math.random() * (50000 - 1000 + 1));
                 }
 
-                // अमाउंट को 100 के गुणक (multiple) में सेट करना ताकि साफ़ दिखे
                 randomAmount = Math.round(randomAmount / 100) * 100;
                 if (randomAmount < 200) randomAmount = 200;
                 if (randomAmount > 50000) randomAmount = 50000;
@@ -195,10 +192,56 @@
                             <span><span class="pkg-label-sub">Quota</span><span class="pkg-val-sub pkg-quota">+${pkg.quota}</span></span>
                         </div>
                     </div>
-                    <a href="task_details_inr.html?amount=${pkg.amount}" class="buy-action-btn">Buy</a>
+                    <button type="button" class="buy-action-btn" onclick="handleBuyClick('${pkg.amount}', '${pkg.income}', '${pkg.quota}')">Buy</button>
                 `;
                 container.appendChild(card);
             });
+        }
+
+        // नया लॉजिक: Buy क्लिक करते ही डेटाबेस में आर्डर सेव होगा और हिस्ट्री में दिखने लगेगा
+        async function handleBuyClick(amount, income, quota) {
+            const userUid = localStorage.getItem('userUid');
+            const userPhone = localStorage.getItem('userPhone');
+
+            if (!userUid) {
+                alert('कृपया पहले लॉगिन करें!');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const orderId = 'ORD' + Math.floor(100000 + Math.random() * 900000);
+            const orderData = {
+                userUid: userUid,
+                phone: userPhone || '',
+                id: orderId,
+                type: 'INR',
+                amount: amount + ' RS',
+                income: income,
+                quota: '+' + quota,
+                status: 'pending', // यह सबसे जरूरी है ताकि 'In Payment' में दिखे
+                utr: '',
+                time: new Date().toISOString().replace('T', ' ').substring(0, 19)
+            };
+
+            try {
+                const response = await fetch('https://rn-pay.onrender.com/api/create-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderData)
+                });
+
+                const result = await response.json();
+
+                if (result.success || response.ok) {
+                    window.location.href = `task_details_inr.html?id=${orderId}&amount=${amount}`;
+                } else {
+                    // अगर एपीआई फेल भी हो तो यूजर रुके न, सीधे पेज पर चला जाए
+                    window.location.href = `task_details_inr.html?id=${orderId}&amount=${amount}`;
+                }
+            } catch (error) {
+                console.error("Order creation error:", error);
+                window.location.href = `task_details_inr.html?id=${orderId}&amount=${amount}`;
+            }
         }
 
         function openVideo() {
