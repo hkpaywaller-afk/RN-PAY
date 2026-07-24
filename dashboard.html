@@ -26,47 +26,50 @@
             background-color: #f7f7f7;
         }
 
-        /* बैनर को हर मोबाइल स्क्रीन के हिसाब से ऑटो-एडजस्ट (Responsive) बनाने के लिए स्टाइल */
+        /* बैनर फ्रेम को इमेज के हिसाब से सेट किया गया है ताकि काली जगह न दिखे */
         .banner-container {
             position: relative;
             width: 90%;
             margin: 15px auto;
             border-radius: 12px;
             overflow: hidden;
-            aspect-ratio: 16 / 9; /* यह सभी मोबाइल्स पर चौड़ाई के हिसाब से ऊँचाई खुद तय कर लेगा */
-            max-height: 200px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            background-color: #1a1a1a;
+            background-color: transparent; /* काला बैकग्राउंड हटाया गया */
         }
 
         .banner-slide {
-            position: absolute;
+            position: relative;
             width: 100%;
-            height: 100%;
             opacity: 0;
             transition: opacity 1s ease-in-out;
-            display: flex;
+            display: none;
             align-items: center;
             padding: 20px;
             color: white;
         }
 
-        .banner-slide.active { opacity: 1; }
+        .banner-slide.active { 
+            opacity: 1; 
+            display: flex;
+        }
 
         .banner-img-bg {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: contain; /* यहाँ 'cover' की जगह 'contain' कर दिया है ताकि मोबाइल पर पूरा बैनर बिना कटे दिखे */
-            background-color: #000; /* साइड की खाली जगह पर ब्लैक बैकग्राउंड रहेगा */
+            position: relative;
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: contain;
             z-index: 1;
+            border-radius: 12px;
         }
 
         .banner-content {
-            position: relative;
+            position: absolute;
             z-index: 2;
             background: rgba(0, 0, 0, 0.5);
             padding: 10px 15px;
             border-radius: 8px;
+            margin: 20px;
         }
 
         .banner-content h3 { font-size: 18px; margin-bottom: 5px; }
