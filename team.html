@@ -61,7 +61,7 @@
 
         .empty-team { text-align: center; padding: 30px; background: #fff; border-radius: 12px; color: #777; font-size: 13px; border: 1px solid #eee; }
 
-        /* सब-मेंबर्स पॉपअप मॉडल */
+        /* सब-मेंबर्स देखने का पॉपअप मॉडल */
         .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 2000; }
         .modal-box { width: 90%; max-width: 400px; background: #fff; padding: 20px; border-radius: 16px; display: flex; flex-direction: column; gap: 12px; max-height: 80vh; overflow-y: auto; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
         .close-modal { position: absolute; top: 15px; right: 15px; font-size: 20px; cursor: pointer; color: #555; }
@@ -168,7 +168,7 @@
             fetchTeamData();
         };
 
-        // लॉगिन यूजर के UID से इनवाइट लिंक और नया डोमेन सेट करना
+        // लॉगिन यूजर के UID से इनवाइट लिंक और नया दिखने वाला डोमेन सेट करना
         function initInviteCode() {
             let userUid = localStorage.getItem('userUid') || '20001';
             let currentHost = window.location.hostname;
@@ -177,7 +177,7 @@
             if (currentHost === "localhost" || currentHost === "127.0.0.1") {
                 baseUrl = window.location.origin + "/register.html";
             } else {
-                baseUrl = "https://rn-pay.web.app.com/register.html"; // आपका नया वाला डोमेन
+                baseUrl = "https://rn-pay.web.app.com/register.html"; // आपका नया डोमेन
             }
 
             let fullLink = baseUrl + "?invite=" + userUid;
@@ -192,6 +192,8 @@
 
             navigator.clipboard.writeText(fullLink).then(() => {
                 alert('Invite Link Copied Successfully!\n\n' + fullLink);
+            }).catch(err => {
+                console.error('Failed to copy link:', err);
             });
         }
 
