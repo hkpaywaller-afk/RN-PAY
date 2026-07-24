@@ -3,18 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HoyoPay - Profile</title>
+    <title>NRPay - Profile</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         body { background-color: #f7f7f7; padding-bottom: 90px; color: #111; }
         
-        /* टॉप हेडर */
         .profile-header { background: #fff; padding: 20px 20px 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f0f0; }
         .edit-profile-btn { font-size: 15px; font-weight: 600; color: #111; display: flex; align-items: center; gap: 6px; text-decoration: none; cursor: pointer; }
         .user-id-top { font-size: 14px; font-weight: 600; color: #111; }
 
-        /* बैलेंस कार्ड सेक्शन */
         .balance-section { background: #fff; padding: 0 20px 20px 20px; display: flex; flex-direction: column; gap: 10px; }
         .quota-label { font-size: 13px; color: #666; font-weight: 600; display: flex; align-items: center; gap: 5px; }
         .balance-row { display: flex; justify-content: space-between; align-items: center; }
@@ -22,72 +20,60 @@
         .topup-btn { background: #111; color: white; padding: 10px 24px; border-radius: 24px; font-weight: 600; font-size: 14px; text-decoration: none; border: none; cursor: pointer; }
         .reward-ratio { font-size: 13px; color: #666; margin-bottom: 10px; }
 
-        /* बैनर */
         .banner-container { width: 92%; max-width: 480px; margin: 15px auto; border-radius: 12px; overflow: hidden; }
-        .banner-container img, .banner-box { width: 100%; border-radius: 12px; }
-        .banner-box { background: linear-gradient(135deg, #111 0%, #222 100%); color: #fff; padding: 16px; display: flex; justify-content: space-between; align-items: center; }
+        .banner-box { background: linear-gradient(135deg, #111 0%, #222 100%); color: #fff; padding: 16px; display: flex; justify-content: space-between; align-items: center; border-radius: 12px; }
         .banner-text h4 { font-size: 15px; font-weight: bold; margin-bottom: 3px; color: #fff; }
         .banner-text p { font-size: 12px; opacity: 0.8; color: #ccc; }
 
         .container { width: 92%; max-width: 480px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
 
-        /* मेनू लिस्ट कार्ड */
         .menu-card { background: #fff; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); overflow: hidden; display: flex; flex-direction: column; }
         .menu-item { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; text-decoration: none; color: #111; border-bottom: 1px solid #f9f9f9; transition: 0.2s; }
         .menu-item:last-child { border-bottom: none; }
-        .menu-item:active { background: #f9f9f9; }
         .menu-left { display: flex; align-items: center; gap: 14px; font-size: 15px; font-weight: 500; }
         .menu-left i { font-size: 16px; width: 20px; color: #333; text-align: center; }
         .menu-right { font-size: 14px; color: #888; display: flex; align-items: center; gap: 6px; }
 
-        /* बॉटम नेविगेशन बार */
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: 70px; background-color: white; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 1000; }
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #888; text-decoration: none; font-size: 11px; cursor: pointer; }
         .nav-item.active { color: #111; font-weight: bold; }
         .nav-item i { font-size: 18px; }
 
-        /* पॉपअप मॉयलस */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: flex-end; z-index: 2000; }
-        .support-sheet { background: white; width: 100%; max-width: 480px; border-top-left-radius: 20px; border-top-right-radius: 20px; padding: 25px 20px 40px 20px; display: flex; justify-content: space-around; animation: slideUp 0.3s ease; }
+        .support-sheet { background: white; width: 100%; max-width: 480px; border-top-left-radius: 20px; border-top-right-radius: 20px; padding: 25px 20px 40px 20px; display: flex; justify-content: space-around; }
         .support-option { display: flex; flex-direction: column; align-items: center; gap: 8px; text-decoration: none; color: #111; font-weight: 600; font-size: 14px; }
         .support-icon { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .telegram-bg { background: #0088cc; }
         .whatsapp-bg { background: #25d366; }
 
-        .confirm-modal { background: white; width: 85%; max-width: 340px; border-radius: 16px; padding: 20px; text-align: center; display: none; flex-direction: column; gap: 15px; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2000; box-shadow: 0 10px 25px rgba(0,0,0,0.15); animation: scaleUp 0.2s ease; }
+        .confirm-modal { background: white; width: 85%; max-width: 340px; border-radius: 16px; padding: 20px; text-align: center; display: none; flex-direction: column; gap: 15px; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2000; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
         .confirm-title { font-size: 15px; font-weight: 500; color: #333; line-height: 1.4; }
         .confirm-actions { display: flex; border-top: 1px solid #eee; margin-top: 5px; }
         .confirm-btn { flex: 1; padding: 12px; font-size: 15px; font-weight: 600; background: none; border: none; cursor: pointer; }
         .btn-cancel { color: #666; border-right: 1px solid #eee; }
         .btn-confirm { color: #111; font-weight: bold; }
-
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        @keyframes scaleUp { from { transform: translate(-50%, -50%) scale(0.9); opacity: 0; } to { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
         
         .copy-btn { background: none; border: none; color: #666; cursor: pointer; font-size: 13px; margin-left: 5px; }
     </style>
 </head>
 <body>
 
-    <!-- टॉप हेडर -->
     <div class="profile-header">
         <a href="account-info.html" class="edit-profile-btn">
             <span id="profileTitleText">Edit profile</span> <i class="fas fa-chevron-right" style="font-size: 12px;"></i>
         </a>
-        <div class="user-id-top">ID: <span id="userIdDisplay">20001</span> <button class="copy-btn" onclick="copyUID()"><i class="far fa-copy"></i></button></div>
+        <div class="user-id-top">ID: <span id="userIdDisplay">Loading...</span> <button class="copy-btn" onclick="copyUID()"><i class="far fa-copy"></i></button></div>
     </div>
 
-    <!-- बैलेंस और कोटा सेक्शन -->
     <div class="balance-section">
-        <div class="quota-label"><i class="fas fa-wallet">*</i> Quota</div>
+        <div class="quota-label"><i class="fas fa-wallet"></i> Quota</div>
         <div class="balance-row">
-            <div class="balance-amount" id="userBalance">674.22 <span style="font-size: 18px; font-weight: normal;">INR</span></div>
+            <div class="balance-amount" id="userBalance">0.00 <span style="font-size: 18px; font-weight: normal;">INR</span></div>
             <a href="deposit.html" class="topup-btn" id="topupText">Top up</a>
         </div>
         <div class="reward-ratio" id="rewardRatioText">Reward ratio 2%</div>
     </div>
 
-    <!-- बैनर -->
     <div class="banner-container">
         <div class="banner-box">
             <div class="banner-text">
@@ -99,7 +85,6 @@
     </div>
 
     <div class="container">
-        <!-- मेनू लिस्ट कार्ड -->
         <div class="menu-card">
             <a href="recharge_history.html" class="menu-item">
                 <div class="menu-left"><i class="fas fa-clock-rotate-left"></i> <span class="lang-recharge">Recharge History</span></div>
@@ -132,7 +117,6 @@
         </div>
     </div>
 
-    <!-- कस्टमर केयर सपोर्ट बॉटम शीट -->
     <div class="modal-overlay" id="supportModal" onclick="closeSupportModal(event)">
         <div class="support-sheet">
             <a href="https://t.me/YourTelegramID" target="_blank" class="support-option">
@@ -146,7 +130,6 @@
         </div>
     </div>
 
-    <!-- लॉगआउट कंफर्मेशन मॉयल -->
     <div class="modal-overlay" id="logoutModal" style="display: none; align-items: center;">
         <div class="confirm-modal" style="display: flex;">
             <div class="confirm-title" id="logoutTextMsg">Logging out of the current account will suspend all functions. Are you sure you want to log out ?</div>
@@ -157,7 +140,6 @@
         </div>
     </div>
 
-    <!-- बॉटम नेविगेशन बार -->
     <nav class="bottom-nav">
         <a href="dashboard.html" class="nav-item">
             <i class="fas fa-home"></i>
@@ -182,28 +164,58 @@
     </nav>
 
     <script>
+        // पेज खुलते ही MongoDB से इस यूजर का असली डेटा फेच करेगा
         window.onload = function() {
-            initializeUID();
-            loadUserBalance();
+            fetchUserData();
             checkSavedLanguage();
         };
 
-        // परमानेंट UID लॉजिक (20001 से शुरू और आगे बढ़ने वाला)
-        function initializeUID() {
-            let permanentUID = localStorage.getItem('hoyo_permanent_uid');
-            if (!permanentUID) {
-                // अगर सिस्टम में कोई यूआईडी काउंटर नहीं है, तो 20001 से शुरुआत करें
-                let lastAssignedUID = localStorage.getItem('hoyo_last_uid');
-                if (!lastAssignedUID) {
-                    permanentUID = "20001";
-                    localStorage.setItem('hoyo_last_uid', "20001");
-                } else {
-                    permanentUID = (parseInt(lastAssignedUID) + 1).toString();
-                    localStorage.setItem('hoyo_last_uid', permanentUID);
-                }
-                localStorage.setItem('hoyo_permanent_uid', permanentUID);
+        async function fetchUserData() {
+            const userPhone = localStorage.getItem('userPhone');
+            const userUid = localStorage.getItem('userUid');
+
+            if (!userPhone && !userUid) {
+                // अगर लॉगिन नहीं है तो लॉगिन पेज पर भेज दें
+                window.location.href = 'login.html';
+                return;
             }
-            document.getElementById('userIdDisplay').innerText = permanentUID;
+
+            try {
+                // बैकएंड से यूजर का लेटेस्ट डेटा लाने के लिए (हम फोन या UID से डेटा मंगवा सकते हैं)
+                // चूँकि लॉगिन पर हमने phone सेव किया है, हम एक छोटी सी API या लॉगिन जैसा रिस्पॉन्स इस्तेमाल कर सकते हैं
+                const response = await fetch('https://rn-pay.onrender.com/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone: userPhone, password: localStorage.getItem('userPassword') })
+                });
+                
+                // या सीधा डेटाबेस से फेच करने के लिए नया रूट भी बना सकते हैं, पर नीचे हम localStorage के UID से डायरेक्ट सेट कर रहे हैं:
+                document.getElementById('userIdDisplay').innerText = userUid || "20001";
+                
+                // बैलेंस लोड करने के लिए API कॉल करें या डेटाबेस से लाएं
+                loadDatabaseBalance(userPhone);
+
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+            }
+        }
+
+        async function loadDatabaseBalance(phone) {
+            try {
+                // सर्वर से उस यूजर का डेटा निकालने के लिए फोन नंबर भेजेंगे
+                const res = await fetch('https://rn-pay.onrender.com/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone, password: localStorage.getItem('userPassword') })
+                });
+                const result = await res.json();
+                if(result.success) {
+                    document.getElementById('userBalance').innerHTML = result.balance.toFixed(2) + ' <span style="font-size: 18px; font-weight: normal;">INR</span>';
+                    document.getElementById('userIdDisplay').innerText = result.uid;
+                }
+            } catch(e) {
+                console.log("Balance fetch error", e);
+            }
         }
 
         function copyUID() {
@@ -213,12 +225,6 @@
             });
         }
 
-        function loadUserBalance() {
-            let balance = localStorage.getItem('user_wallet_balance') || "674.22";
-            document.getElementById('userBalance').innerHTML = balance + ' <span style="font-size: 18px; font-weight: normal;">INR</span>';
-        }
-
-        // सपोर्ट मॉडल कंट्रोल
         function openSupportModal() {
             document.getElementById('supportModal').style.display = 'flex';
         }
@@ -228,7 +234,6 @@
             }
         }
 
-        // लॉगआउट मॉडल कंट्रोल
         function openLogoutModal() {
             document.getElementById('logoutModal').style.display = 'flex';
         }
@@ -236,11 +241,10 @@
             document.getElementById('logoutModal').style.display = 'none';
         }
         function confirmLogout() {
-            localStorage.removeItem('hoyo_logged_user');
+            localStorage.clear();
             window.location.href = 'index.html';
         }
 
-        // भाषा बदलने का लॉजिक (English & Hindi)
         let currentLang = localStorage.getItem('hoyo_lang') || 'en';
 
         function toggleLanguage() {
