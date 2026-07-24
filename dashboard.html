@@ -26,13 +26,15 @@
             background-color: #f7f7f7;
         }
 
+        /* बैनर को हर मोबाइल स्क्रीन के हिसाब से ऑटो-एडजस्ट (Responsive) बनाने के लिए स्टाइल */
         .banner-container {
             position: relative;
             width: 90%;
             margin: 15px auto;
             border-radius: 12px;
             overflow: hidden;
-            height: 160px;
+            aspect-ratio: 16 / 9; /* यह सभी मोबाइल्स पर चौड़ाई के हिसाब से ऊँचाई खुद तय कर लेगा */
+            max-height: 200px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             background-color: #1a1a1a;
         }
@@ -413,7 +415,6 @@
     </nav>
 
     <script>
-        // पेज खुलते ही MongoDB से इस यूजर का डेटा फेच करेगा
         window.onload = function() {
             fetchDashboardData();
             showSlides();
@@ -429,20 +430,16 @@
             }
 
             try {
-                // सर्वर से इस यूजर का लेटेस्ट डेटा लाने के लिए
                 const response = await fetch('https://rn-pay.onrender.com/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ phone: userPhone, password: localStorage.getItem('userPassword') })
                 });
 
-                // अगर पासवर्ड लोकल स्टोरेज में नहीं है, तो हम सीधे हिस्ट्री या यूजर डेटा की एपीआई से ला सकते हैं
-                // यहाँ हम सुरक्षित रूप से डेटा सेट कर रहे हैं:
                 if(userUid) {
                     document.getElementById('navUserUid').innerText = "ID: " + userUid;
                 }
 
-                // यूजर की हिस्ट्री और आर्डर्स लोड करें (बैलेंस, टुडे रिसीव आदि के लिए)
                 if(userUid) {
                     const historyRes = await fetch(`https://rn-pay.onrender.com/api/history/${userUid}`);
                     const historyData = await historyRes.json();
@@ -469,7 +466,6 @@
                     }
                 }
 
-                // लोकल या डेटाबेस से बैलेंस सेट करें
                 let currentBalance = localStorage.getItem('userBalance') || "0.00";
                 document.getElementById('dashBalance').innerText = parseFloat(currentBalance).toFixed(2);
 
