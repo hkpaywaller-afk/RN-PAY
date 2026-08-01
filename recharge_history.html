@@ -127,7 +127,7 @@
             }
 
             try {
-                const response = await fetch(`https://rn-pay.onrender.com/api/history/${userUid}`);
+                const response = await fetch(`/api/history/${userUid}`);
                 const result = await response.json();
 
                 if (result.success && result.data) {
@@ -145,15 +145,17 @@
 
         function switchCurrency(curr) {
             currentCurr = curr;
-            document.querySelectorAll('.curr-tab').forEach(el => el.classList.remove('active'));
-            event.target.classList.add('active');
+            document.querySelectorAll('.curr-tab').forEach(el => {
+                el.classList.toggle('active', el.innerText.includes(curr));
+            });
             renderList();
         }
 
         function filterStatus(status) {
             currentStatus = status;
-            document.querySelectorAll('.status-tab').forEach(el => el.classList.remove('active'));
-            event.target.classList.add('active');
+            document.querySelectorAll('.status-tab').forEach(el => {
+                el.classList.toggle('active', el.innerText.includes(status === 'all' ? 'All' : status));
+            });
             renderList();
         }
 
@@ -187,7 +189,7 @@
                         if(currentCurr === 'INR') {
                             window.location.href = `task_details_inr.html?id=${item.id || item._id}&amount=${cleanAmount}`;
                         } else {
-                            window.location.href = `task_details_usdt.html?id=${item.id || item._id}&amount=${cleanAmount}`;
+                            window.location.href = `task_usdt.html?id=${item.id || item._id}&amount=${cleanAmount}`;
                         }
                     };
                 } else {

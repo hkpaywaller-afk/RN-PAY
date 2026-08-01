@@ -99,26 +99,50 @@
             generateUniqueKeyForUser();
         };
 
+        function generateBase32Secret(length = 32) {
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+            let randomKey = "";
+            for (let i = 0; i < length; i++) {
+                randomKey += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return randomKey;
+        }
+
+        function getUserIdentity() {
+            const uid = localStorage.getItem('userUid') || '';
+            const phone = localStorage.getItem('userPhone') || '';
+            return {
+                uid,
+                phone
+            };
+        }
+
+        function getUserSecretStorageKey() {
+            const identity = getUserIdentity();
+            const identityKey = identity.uid || identity.phone || 'guest';
+            return `holo_ga_secret_key_${identityKey}`;
+        }
+
         // हर यूजर के लिए अलग और परमानेंट सीक्रेट की बनाने का लॉजिक
         function generateUniqueKeyForUser() {
-            let userKey = localStorage.getItem('hoyo_ga_secret_key');
+            const storageKey = getUserSecretStorageKey();
+            let userKey = localStorage.getItem(storageKey) || localStorage.getItem('hoyo_ga_secret_key');
+
             if (!userKey) {
-                // रैंडम बेस32 जैसी स्ट्रिंग जेनरेट करना अगर पहले से न हो
-                const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
-                let randomKey = "";
-                for (let i = 0; i < 32; i++) {
-                    randomKey += chars.charAt(Math.floor(Math.random() * chars.length));
-                }
-                userKey = randomKey;
-                localStorage.setItem('hoyo_ga_secret_key', userKey);
+                userKey = generateBase32Secret(32);
+                localStorage.setItem(storageKey, userKey);
+            } else if (!localStorage.getItem(storageKey)) {
+                localStorage.setItem(storageKey, userKey);
             }
 
             // स्क्रीन पर की दिखाना
             document.getElementById('secretKeyDisplay').innerText = userKey;
 
             // उस की के हिसाब से QR कोड बनाना (Google Authenticator otpauth URI फॉर्मेट)
-            let accountName = localStorage.getItem('hoyo_user_phone') || "HoyoUser";
-            let otpAuthUrl = `otpauth://totp/HoyoPay:${accountName}?secret=${userKey}&issuer=HoyoPay`;
+            const identity = getUserIdentity();
+            const accountName = identity.phone || identity.uid || 'HOLOUser';
+            const issuer = 'HOLO PAY';
+            const otpAuthUrl = `otpauth://totp/${encodeURIComponent(issuer)}:${encodeURIComponent(accountName)}?secret=${userKey}&issuer=${encodeURIComponent(issuer)}`;
 
             let qrContainer = document.getElementById('qrcodeContainer');
             qrContainer.innerHTML = ""; // पुराना साफ़ करें
@@ -158,6 +182,17 @@
             if (codeVal.length < 6) {
                 alert('Please enter a valid 6-digit Google Authenticator code.');
                 return;
+            }
+
+            const phone = localStorage.getItem('userPhone') || '';
+            const secretKey = document.getElementById('secretKeyDisplay').innerText.trim();
+
+            if (phone) {
+                fetch('/api/auth/bind-ga', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone, secretKey })
+                }).catch(err => console.error('Google Authenticator bind error:', err));
             }
 
             // सफलता का संदेश और सेव करना

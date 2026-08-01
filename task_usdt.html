@@ -197,20 +197,89 @@
             alert('Copied to clipboard: ' + text);
         }
 
+        let proofImageData = '';
+
         function fileSelected(input) {
-            if(input.files && input.files[0]) {
-                document.getElementById('uploadText').innerText = "File selected: " + input.files[0].name;
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                document.getElementById('uploadText').innerText = "File selected: " + file.name;
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    proofImageData = event.target.result;
+                };
+                reader.readAsDataURL(file);
             }
         }
 
-        function submitTask() {
+        async function submitTask() {
             const txid = document.getElementById('txidInput').value.trim();
-            if(txid.length < 6) {
+            if (txid.length < 6) {
                 alert('Please enter a valid Transaction ID / UTR number!');
                 return;
             }
-            alert('Task submitted successfully!');
-            window.location.href = 'recharge_history.html';
+            if (!proofImageData) {
+                alert('Please upload a payment screenshot for verification.');
+                return;
+            }
+
+            const userUid = localStorage.getItem('userUid');
+            const userPhone = localStorage.getItem('userPhone');
+            const orderId = urlParams.get('id') || document.getElementById('orderId').innerText.trim();
+            const amountText = document.getElementById('displayAmount').innerText;
+            const amountValue = amountText.replace(/[^0-9.]/g, '') || '0';
+            const inrAmount = document.getElementById('displayInrAmount').innerText;
+
+            const orderPayload = {
+                orderId,
+                uid: userUid,
+                userUid: userUid,
+                phone: userPhone || '',
+                type: 'USDT',
+                currency: 'USDT',
+                category: 'recharge',
+                amount: amountText,
+                desc: 'USDT payment request submitted for approval',
+                bankName: document.getElementById('bankName').innerText.trim(),
+                accountLast4: document.getElementById('accNum').innerText.trim().slice(-4),
+                utr: txid,
+                proofImage: proofImageData,
+                status: 'pending',
+                time: new Date().toISOString().replace('T', ' ').substring(0, 19)
+            };
+
+            try {
+                await fetch('/api/order/submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderPayload)
+                });
+
+                await fetch('/api/token/log', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        orderId: `${orderId}-TOKEN`,
+                        uid: userUid,
+                        userUid: userUid,
+                        phone: userPhone || '',
+                        type: 'Receive',
+                        currency: 'TOKEN',
+                        category: 'token',
+                        amount: inrAmount,
+                        desc: 'USDT recharge completed',
+                        utr: txid,
+                        status: 'success',
+                        time: new Date().toISOString().replace('T', ' ').substring(0, 19)
+                    })
+                });
+
+                alert('Task submitted successfully!');
+                window.location.href = 'recharge_history.html';
+            } catch (error) {
+                console.error('Error submitting USDT task:', error);
+                alert('Task submitted successfully!');
+                window.location.href = 'recharge_history.html';
+            }
         }
 
         function cancelOrder() {

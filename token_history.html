@@ -154,11 +154,11 @@
             }
 
             try {
-                const response = await fetch(`https://rn-pay.onrender.com/api/history/${userUid}`);
+                const response = await fetch(`/api/history/${userUid}`);
                 const result = await response.json();
 
                 if (result.success && result.data) {
-                    tokenHistoryData = result.data;
+                    tokenHistoryData = result.data.filter(item => item.category === 'token' || ['Receive','Return','Transfer In','Transfer Out','Payment task','Payment task reward','Invite recharge activity','Exchange game balance','Game withdrawal'].includes(item.type));
                     renderHistory(activeType);
                 } else {
                     document.getElementById('historyListContainer').innerHTML = `<div class="empty-box">कोई रिकॉर्ड नहीं मिला।</div>`;

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payment Approval</title>
+    <style>
+        :root {
+            --bg: #0b1220;
+            --panel: #111827;
+            --border: #1f2937;
+            --text: #f8fafc;
+            --muted: #94a3b8;
+            --primary: #2563eb;
+            --danger: #dc2626;
+            --success: #22c55e;
+            --warning: #f59e0b;
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; min-height: 100vh; font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); }
+        .page { max-width: 1300px; margin: 0 auto; padding: 18px; }
+        .header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 18px; }
+        .header h1 { margin: 0; font-size: 26px; }
+        .header .pill { padding: 10px 14px; background: rgba(255,255,255,.05); border: 1px solid var(--border); border-radius: 999px; color: var(--muted); }
+        .toolbar { display: grid; grid-template-columns: 1fr auto auto; gap: 12px; margin-bottom: 18px; }
+        .toolbar input, .toolbar select { width: 100%; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--border); background: #121827; color: var(--text); }
+        .toolbar button { border: none; border-radius: 14px; padding: 12px 16px; cursor: pointer; color: #fff; background: var(--primary); }
+        .toolbar button:hover { opacity: .95; }
+        .status-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 18px; }
+        .card { background: var(--panel); border: 1px solid var(--border); border-radius: 22px; padding: 20px; }
+        .card h2 { margin: 0 0 14px; font-size: 18px; }
+        .card strong { display: block; font-size: 30px; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 14px 12px; border-bottom: 1px solid rgba(255,255,255,.08); text-align: left; vertical-align: top; }
+        th { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .08em; }
+        tr:hover { background: rgba(255,255,255,.03); }
+        .thumb { width: 70px; height: 50px; object-fit: cover; border-radius: 12px; cursor: pointer; border: 1px solid rgba(255,255,255,.1); }
+        .status-badge { display: inline-flex; padding: 6px 10px; border-radius: 999px; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+        .pending { background: rgba(245,158,11,.15); color: var(--warning); }
+        .approved { background: rgba(34,197,94,.15); color: var(--success); }
+        .rejected { background: rgba(239,68,68,.15); color: var(--danger); }
+        .button { border: none; border-radius: 14px; padding: 10px 12px; cursor: pointer; color: #fff; }
+        .button.primary { background: var(--primary); }
+        .button.danger { background: var(--danger); }
+        .button.disabled { opacity: .55; cursor: not-allowed; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.85); align-items: center; justify-content: center; padding: 20px; z-index: 1000; }
+        .modal.active { display: flex; }
+        .modal-content { width: 100%; max-width: 940px; background: #0f1728; border: 1px solid var(--border); border-radius: 22px; overflow: hidden; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 18px 20px; border-bottom: 1px solid rgba(255,255,255,.08); }
+        .modal-header h3 { margin: 0; font-size: 18px; }
+        .modal-body { padding: 18px; }
+        .modal-body img { width: 100%; height: auto; border-radius: 16px; }
+        .close { background: transparent; border: none; color: var(--text); font-size: 24px; cursor: pointer; }
+        .input-inline { width: 180px; max-width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--border); background: #111827; color: var(--text); }
+        .note { color: var(--muted); font-size: 13px; margin-top: 10px; }
+        @media (max-width: 900px) { .toolbar { grid-template-columns: 1fr; } table { font-size: 13px; } }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="header">
+            <div>
+                <h1>Payment Approval</h1>
+                <div class="pill">Direct access mode — no login required</div>
+            </div>
+            <button class="button primary" type="button" onclick="loadRequests()">Refresh</button>
+        </div>
+
+        <div class="toolbar">
+            <input id="searchInput" type="search" placeholder="Search by User ID, Name, or UTR" oninput="debounceLoad()" />
+            <select id="statusFilter" onchange="loadRequests()">
+                <option value="">All statuses</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+            </select>
+            <select id="categoryFilter" onchange="loadRequests()">
+                <option value="recharge">Recharge requests</option>
+            </select>
+        </div>
+
+        <div class="status-cards">
+            <div class="card"><h2>Pending</h2><strong id="countPending">0</strong></div>
+            <div class="card"><h2>Approved</h2><strong id="countApproved">0</strong></div>
+            <div class="card"><h2>Rejected</h2><strong id="countRejected">0</strong></div>
+            <div class="card"><h2>Total</h2><strong id="countTotal">0</strong></div>
+        </div>
+
+        <div class="card">
+            <h2>Requests</h2>
+            <div id="requestsTable">Loading requests...</div>
+        </div>
+    </div>
+
+    <div id="imageModal" class="modal" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation();">
+            <div class="modal-header">
+                <h3>Payment Screenshot</h3>
+                <button class="close" onclick="closeModal(event)">&times;</button>
+            </div>
+            <div class="modal-body">
+                <img id="modalImage" src="" alt="Screenshot preview" />
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let debounceTimer;
+
+        function escapeHtml(value) {
+            return String(value || '').replace(/[&<>"]/g, tag => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[tag]));
+        }
+
+        function debounceLoad() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(loadRequests, 300);
+        }
+
+        async function loadRequests() {
+            const search = document.getElementById('searchInput').value.trim();
+            const status = document.getElementById('statusFilter').value;
+            const category = document.getElementById('categoryFilter').value;
+            const params = new URLSearchParams();
+            if (search) params.set('search', search);
+            if (status) params.set('status', status);
+            if (category) params.set('category', category);
+
+            try {
+                const response = await fetch('/api/public/orders?' + params.toString());
+                const data = await response.json();
+                if (!data.success) throw new Error(data.message || 'Unable to load requests');
+                renderTable(data.data || []);
+            } catch (err) {
+                document.getElementById('requestsTable').innerHTML = `<div class="note">${escapeHtml(err.message)}</div>`;
+            }
+        }
+
+        function renderTable(orders) {
+            const countPending = orders.filter(o => o.status === 'pending').length;
+            const countApproved = orders.filter(o => o.status === 'approved').length;
+            const countRejected = orders.filter(o => o.status === 'rejected').length;
+            document.getElementById('countPending').textContent = countPending;
+            document.getElementById('countApproved').textContent = countApproved;
+            document.getElementById('countRejected').textContent = countRejected;
+            document.getElementById('countTotal').textContent = orders.length;
+
+            if (!orders.length) {
+                document.getElementById('requestsTable').innerHTML = '<div class="note">No requests found.</div>';
+                return;
+            }
+
+            const rows = orders.map((order, index) => {
+                const proof = order.proofImage ? `<img src="${escapeHtml(order.proofImage)}" class="thumb" alt="Proof" onclick="openModal('${escapeHtml(order.proofImage)}')" />` : '<span class="note">No image</span>';
+                const inputId = `utr-${index}`;
+                return `
+                    <tr>
+                        <td><strong>${escapeHtml(order.uid)}</strong><div class="note">${escapeHtml(order.userName || order.phone || '')}</div></td>
+                        <td>${escapeHtml(order.amount)}</td>
+                        <td><input id="${inputId}" class="input-inline" value="${escapeHtml(order.utr)}" /></td>
+                        <td>${proof}</td>
+                        <td>${renderStatus(order.status)}</td>
+                        <td>
+                            <button class="button primary" onclick="handleAction('${escapeHtml(order.orderId)}','${inputId}','approved')">Approve</button>
+                            <button class="button danger" onclick="handleAction('${escapeHtml(order.orderId)}','${inputId}','rejected')">Reject</button>
+                        </td>
+                    </tr>`;
+            }).join('');
+
+            document.getElementById('requestsTable').innerHTML = `
+                <div style="overflow-x:auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Amount</th>
+                                <th>UTR / Ref</th>
+                                <th>Proof</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>`;
+        }
+
+        function renderStatus(status) {
+            if (status === 'pending') return `<span class="status-badge pending">Pending</span>`;
+            if (status === 'approved') return `<span class="status-badge approved">Approved</span>`;
+            if (status === 'rejected') return `<span class="status-badge rejected">Rejected</span>`;
+            return `<span class="status-badge">${escapeHtml(status)}</span>`;
+        }
+
+        function openModal(src) {
+            document.getElementById('modalImage').src = src;
+            document.getElementById('imageModal').classList.add('active');
+        }
+
+        function closeModal(event) {
+            if (event) event.stopPropagation();
+            document.getElementById('imageModal').classList.remove('active');
+        }
+
+        async function handleAction(orderId, inputId, action) {
+            const utr = document.getElementById(inputId).value.trim();
+            const body = { status: action, utr };
+            if (action === 'rejected') {
+                const reason = prompt('Reject reason (optional):');
+                if (reason !== null) body.rejectReason = reason;
+            }
+            try {
+                const response = await fetch(`/api/public/orders/${encodeURIComponent(orderId)}/status`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const data = await response.json();
+                if (!data.success) throw new Error(data.message || 'Unable to update status');
+                loadRequests();
+            } catch (err) {
+                alert(err.message || 'Action failed');
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadRequests();
+        });
+    </script>
+</body>
+</html>
