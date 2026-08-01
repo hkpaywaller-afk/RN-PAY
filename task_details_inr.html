@@ -254,8 +254,20 @@
             }
         }
 
-        function cancelOrder() {
+        async function cancelOrder() {
             if(confirm('Are you sure you want to cancel this order?')) {
+                const orderId = new URLSearchParams(window.location.search).get('id') || document.getElementById('orderId').innerText.trim();
+                if (orderId) {
+                    try {
+                        await fetch(`/api/public/orders/${encodeURIComponent(orderId)}/status`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ status: 'cancel' })
+                        });
+                    } catch (error) {
+                        console.error('Cancel order failed:', error);
+                    }
+                }
                 alert('Order has been cancelled.');
                 window.location.href = 'recharge_history.html';
             }
@@ -263,10 +275,22 @@
 
         // 30 Minutes Countdown Timer
         let timeInSeconds = 30 * 60;
-        let timerInterval = setInterval(() => {
+        let timerInterval = setInterval(async () => {
             if(timeInSeconds <= 0) {
                 clearInterval(timerInterval);
                 document.getElementById('countdown').innerText = "00:00 (Timeout)";
+                const orderId = new URLSearchParams(window.location.search).get('id') || document.getElementById('orderId').innerText.trim();
+                if (orderId) {
+                    try {
+                        await fetch(`/api/public/orders/${encodeURIComponent(orderId)}/status`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ status: 'timeout' })
+                        });
+                    } catch (error) {
+                        console.error('Timeout status update failed:', error);
+                    }
+                }
                 alert('Time expired! This order has timed out.');
                 window.location.href = 'recharge_history.html';
                 return;

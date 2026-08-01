@@ -71,8 +71,9 @@
             <select id="statusFilter" onchange="loadRequests()">
                 <option value="">All statuses</option>
                 <option value="pending">Pending</option>
-                <option value="approved">Approved</option>
-                <option value="rejected">Rejected</option>
+                <option value="success">Success</option>
+                <option value="cancel">Cancel</option>
+                <option value="timeout">Timeout</option>
             </select>
             <select id="categoryFilter" onchange="loadRequests()">
                 <option value="recharge">Recharge requests</option>
@@ -81,8 +82,8 @@
 
         <div class="status-cards">
             <div class="card"><h2>Pending</h2><strong id="countPending">0</strong></div>
-            <div class="card"><h2>Approved</h2><strong id="countApproved">0</strong></div>
-            <div class="card"><h2>Rejected</h2><strong id="countRejected">0</strong></div>
+            <div class="card"><h2>Success</h2><strong id="countSuccess">0</strong></div>
+            <div class="card"><h2>Cancel</h2><strong id="countCancel">0</strong></div>
             <div class="card"><h2>Total</h2><strong id="countTotal">0</strong></div>
         </div>
 
@@ -136,12 +137,12 @@
         }
 
         function renderTable(orders) {
-            const countPending = orders.filter(o => o.status === 'pending').length;
-            const countApproved = orders.filter(o => o.status === 'approved').length;
-            const countRejected = orders.filter(o => o.status === 'rejected').length;
+            const countPending = orders.filter(o => normalizeStatus(o.status) === 'pending').length;
+            const countSuccess = orders.filter(o => normalizeStatus(o.status) === 'success').length;
+            const countCancel = orders.filter(o => normalizeStatus(o.status) === 'cancel').length;
             document.getElementById('countPending').textContent = countPending;
-            document.getElementById('countApproved').textContent = countApproved;
-            document.getElementById('countRejected').textContent = countRejected;
+            document.getElementById('countSuccess').textContent = countSuccess;
+            document.getElementById('countCancel').textContent = countCancel;
             document.getElementById('countTotal').textContent = orders.length;
 
             if (!orders.length) {
@@ -184,11 +185,21 @@
                 </div>`;
         }
 
+        function normalizeStatus(status) {
+            const value = String(status || '').trim().toLowerCase();
+            if (value === 'approved') return 'success';
+            if (value === 'rejected' || value === 'cancelled') return 'cancel';
+            if (value === 'in-payment') return 'pending';
+            return value || 'pending';
+        }
+
         function renderStatus(status) {
-            if (status === 'pending') return `<span class="status-badge pending">Pending</span>`;
-            if (status === 'approved') return `<span class="status-badge approved">Approved</span>`;
-            if (status === 'rejected') return `<span class="status-badge rejected">Rejected</span>`;
-            return `<span class="status-badge">${escapeHtml(status)}</span>`;
+            const normalized = normalizeStatus(status);
+            if (normalized === 'pending') return `<span class="status-badge pending">Pending</span>`;
+            if (normalized === 'success') return `<span class="status-badge approved">Success</span>`;
+            if (normalized === 'cancel') return `<span class="status-badge rejected">Cancelled</span>`;
+            if (normalized === 'timeout') return `<span class="status-badge timeout">Timeout</span>`;
+            return `<span class="status-badge">${escapeHtml(normalized)}</span>`;
         }
 
         function openModal(src) {
@@ -203,7 +214,7 @@
 
         async function handleAction(orderId, inputId, action) {
             const utr = document.getElementById(inputId).value.trim();
-            const body = { status: action, utr };
+            const body = { status: action === 'approved' ? 'success' : action === 'rejected' ? 'cancel' : action, utr };
             if (action === 'rejected') {
                 const reason = prompt('Reject reason (optional):');
                 if (reason !== null) body.rejectReason = reason;

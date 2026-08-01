@@ -686,9 +686,11 @@ app.post('/api/order/submit', async (req, res) => {
         const orderPayload = buildOrderPayload(req.body);
         const savedOrder = await saveOrderRecord(orderPayload);
 
-        if (orderPayload.status !== 'pending') {
+        if (orderPayload.status === 'success') {
             const numericAmount = parseFloat(orderPayload.amount.replace(/[^0-9.-]+/g, '')) || 0;
-            await User.findOneAndUpdate({ uid: orderPayload.uid }, { $inc: { balance: numericAmount } });
+            if (numericAmount !== 0) {
+                await User.findOneAndUpdate({ uid: orderPayload.uid }, { $inc: { balance: numericAmount } });
+            }
         }
 
         res.status(200).json({ success: true, message: 'Task submitted and history updated successfully!', data: savedOrder });

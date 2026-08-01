@@ -69,11 +69,11 @@
 
     <!-- स्टेटस सब-टैब -->
     <div class="status-tabs">
-        <div class="status-tab active" onclick="filterStatus('all')">All</div>
-        <div class="status-tab" onclick="filterStatus('pending')">In Payment</div>
-        <div class="status-tab" onclick="filterStatus('success')">Success</div>
-        <div class="status-tab" onclick="filterStatus('timeout')">Timeout</div>
-        <div class="status-tab" onclick="filterStatus('cancel')">Cancel</div>
+        <div class="status-tab active" data-status="all" onclick="filterStatus('all')">All</div>
+        <div class="status-tab" data-status="pending" onclick="filterStatus('pending')">In Payment</div>
+        <div class="status-tab" data-status="success" onclick="filterStatus('success')">Success</div>
+        <div class="status-tab" data-status="timeout" onclick="filterStatus('timeout')">Timeout</div>
+        <div class="status-tab" data-status="cancel" onclick="filterStatus('cancel')">Cancel</div>
     </div>
 
     <!-- बैनर नोटिस -->
@@ -151,10 +151,18 @@
             renderList();
         }
 
+        function normalizeStatus(rawStatus) {
+            const status = String(rawStatus || 'pending').trim().toLowerCase();
+            if (status === 'in-payment') return 'pending';
+            if (status === 'approved') return 'success';
+            if (status === 'rejected' || status === 'cancelled') return 'cancel';
+            return status;
+        }
+
         function filterStatus(status) {
             currentStatus = status;
             document.querySelectorAll('.status-tab').forEach(el => {
-                el.classList.toggle('active', el.innerText.includes(status === 'all' ? 'All' : status));
+                el.classList.toggle('active', el.dataset.status === status);
             });
             renderList();
         }
@@ -165,8 +173,9 @@
 
             let filtered = fetchedHistoryData.filter(item => {
                 let itemCurr = (item.currency || item.type || 'INR').toUpperCase();
+                let statusNormalized = normalizeStatus(item.status);
                 let matchCurr = itemCurr.includes(currentCurr);
-                let matchStat = currentStatus === 'all' || (item.status && item.status.toLowerCase() === currentStatus);
+                let matchStat = currentStatus === 'all' || statusNormalized === currentStatus;
                 return matchCurr && matchStat;
             });
 
@@ -179,11 +188,11 @@
                 let card = document.createElement('div');
                 card.className = `history-card`;
                 
-                let itemStatus = (item.status || 'pending').toLowerCase();
+                let itemStatus = normalizeStatus(item.status);
                 let hasUtr = item.utr && item.utr.trim() !== '';
 
-                // क्लिक लॉजिक: अगर यूटीआर नहीं है और स्टेटस पेंडिंग/इन-पेमेंट है, तभी टास्क डिटेल्स खुलेगा
-                if(itemStatus === 'pending' || itemStatus === 'in-payment' || (!hasUtr && itemStatus !== 'success')) {
+                // क्लिक लॉजिक: अगर यूटीआर नहीं है और स्टेटस पेंडिंग है, तभी टास्क डिटेल्स खुलेगा
+                if(itemStatus === 'pending' || (!hasUtr && itemStatus !== 'success')) {
                     card.onclick = () => {
                         let cleanAmount = String(item.amount || '0').replace(/[^0-9.]/g,'');
                         if(currentCurr === 'INR') {
