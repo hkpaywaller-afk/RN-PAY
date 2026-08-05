@@ -26,7 +26,7 @@
             background-color: #f7f7f7;
         }
 
-        /* बैनर फ्रेम को इमेज के हिसाब से सेट किया गया है ताकि काली जगह न दिखे */
+        /* बैनर फ्रेम */
         .banner-container {
             position: relative;
             width: 90%;
@@ -34,7 +34,7 @@
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            background-color: transparent; /* काला बैकग्राउंड हटाया गया */
+            background-color: transparent;
         }
 
         .banner-slide {
@@ -419,59 +419,60 @@
     </nav>
 
     <script>
+        const API_BASE_URL = 'https://rn-pay.onrender.com';
+
         window.onload = function() {
             fetchDashboardData();
             showSlides();
         };
 
         async function fetchDashboardData() {
-            const userPhone = localStorage.getItem('userPhone');
             const userUid = localStorage.getItem('userUid');
 
-            if (!userPhone && !userUid) {
+            if (!userUid) {
                 window.location.href = 'login.html';
                 return;
             }
 
-            try {
-                const response = await fetch('https://rn-pay.onrender.com/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ phone: userPhone, password: localStorage.getItem('userPassword') })
-                });
+            document.getElementById('navUserUid').innerText = "ID: " + userUid;
 
-                if(userUid) {
-                    document.getElementById('navUserUid').innerText = "ID: " + userUid;
+            try {
+                // 1. नए डैशबोर्ड API से ताज़ा डेटा प्राप्त करें
+                const dashRes = await fetch(`${API_BASE_URL}/api/user/dashboard-data?uid=${userUid}`);
+                const dashData = await dashRes.json();
+
+                if (dashData.success) {
+                    const balance = parseFloat(dashData.data.balance || 0).toFixed(2);
+                    document.getElementById('dashBalance').innerText = balance;
+                    localStorage.setItem('userBalance', balance);
                 }
 
-                if(userUid) {
-                    const historyRes = await fetch(`https://rn-pay.onrender.com/api/history/${userUid}`);
-                    const historyData = await historyRes.json();
-                    
-                    if(historyData.success && historyData.data.length > 0) {
-                        let todayReceivedTotal = 0;
-                        let topupBonusTotal = 0;
-                        const todayDateStr = new Date().toISOString().substring(0, 10);
+                // 2. आज की कमाई और बोनस निकालने के लिए ऑर्डर्स चेक करें
+                const historyRes = await fetch(`${API_BASE_URL}/api/public/orders?search=${userUid}`);
+                const historyData = await historyRes.json();
+                
+                if (historyData.success && historyData.data.length > 0) {
+                    let todayReceivedTotal = 0;
+                    let topupBonusTotal = 0;
+                    const todayDateStr = new Date().toISOString().substring(0, 10);
 
-                        historyData.data.forEach(order => {
-                            let amt = parseFloat(order.amount) || 0;
-                            if(order.time && order.time.startsWith(todayDateStr)) {
-                                if(order.type === 'Receive' || order.type === 'Task') {
+                    historyData.data.forEach(order => {
+                        let amt = parseFloat(String(order.amount).replace(/[^0-9.-]+/g, '')) || 0;
+                        if (order.status === 'approved' || order.status === 'success') {
+                            if (order.time && order.time.startsWith(todayDateStr)) {
+                                if (order.type === 'Receive' || order.type === 'Task' || order.category === 'task') {
                                     todayReceivedTotal += amt;
                                 }
                             }
-                            if(order.type === 'Bonus' || order.type === 'Topup Bonus') {
+                            if (order.type === 'Bonus' || order.type === 'Topup Bonus') {
                                 topupBonusTotal += amt;
                             }
-                        });
+                        }
+                    });
 
-                        document.getElementById('dashTodayReceived').innerText = todayReceivedTotal.toFixed(2);
-                        document.getElementById('dashTopupBonus').innerText = topupBonusTotal.toFixed(2);
-                    }
+                    document.getElementById('dashTodayReceived').innerText = todayReceivedTotal.toFixed(2);
+                    document.getElementById('dashTopupBonus').innerText = topupBonusTotal.toFixed(2);
                 }
-
-                let currentBalance = localStorage.getItem('userBalance') || "0.00";
-                document.getElementById('dashBalance').innerText = parseFloat(currentBalance).toFixed(2);
 
             } catch (error) {
                 console.error("Dashboard fetch error:", error);

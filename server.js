@@ -42,7 +42,7 @@ mongoose.connect(MONGO_URI).then(async () => {
     console.error('Database connection error:', err);
 });
 
-// 1. यूजर स्कीमा (User Schema - टीम और इनवाइट कोड जोड़ा गया है)
+// 1. यूजर स्कीमा (User Schema - टीम और इनवाइट कोड जोड़ा गया है)
 const userSchema = new mongoose.Schema({
     phone: { type: String, required: true, unique: true },
     password: { type: String, required: true },
@@ -219,7 +219,7 @@ function adminAuth(req, res, next) {
 
 // --- API ROUTES ---
 
-// A. रजिस्ट्रेशन एपीआई (Register API - इनवाइट कोड सेव करने के साथ)
+// A. रजिस्ट्रेशन एपीआई (Register API)
 app.post('/api/register', async (req, res) => {
     try {
         const { phone, password, inviteCode } = req.body;
@@ -236,7 +236,7 @@ app.post('/api/register', async (req, res) => {
             phone,
             password,
             uid: nextUid,
-            invitedBy: inviteCode || '20001' // यहाँ इनवाइट करने वाले का UID सेव होगा
+            invitedBy: inviteCode || '20001'
         });
 
         await newUser.save();
@@ -266,6 +266,90 @@ app.post('/api/login', async (req, res) => {
             uid: user.uid,
             phone: user.phone,
             balance: user.balance
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// C. यूजर प्रोफाइल और डैशबोर्ड डाटा पाने की एपीआई (ताजा बैलेंस और कुल ऑर्डर दिखाने के लिए)
+app.get('/api/user/dashboard-data', async (req, res) => {
+    try {
+        const { uid } = req.query;
+        if (!uid) {
+            return res.status(400).json({ success: false, message: 'UID required' });
+        }
+
+        const user = await User.findOne({ uid });
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        // यूज़र के सफल/अप्रूव्ड ऑर्डर्स निकालें
+        const userOrders = await Order.find({ uid: user.uid, $or: [{ status: 'approved' }, { status: 'success' }] });
+
+        let totalEarnings = 0;
+        userOrders.forEach(ord => {
+            const num = parseFloat(String(ord.amount).replace(/[^0-9.-]+/g, '')) || 0;
+            if (num > 0) totalEarnings += num;
+        });
+
+        res.status(200).json({
+            success: true,
+            data: {
+                uid: user.uid,
+                phone: user.phone,
+                balance: user.balance,
+                totalOrders: userOrders.length,
+                totalEarnings: totalEarnings.toFixed(2)
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// D. ऑर्डर खरीदने/प्रोसेस करने की नई एपीआई (बैलेंस बढ़ाने और ऑर्डर रिकॉर्ड बनाने के लिए)
+app.post('/api/user/process-order', async (req, res) => {
+    try {
+        const { uid, orderAmount, profitAmount, type, desc } = req.body;
+        
+        const total = parseFloat(orderAmount) || 0;
+        const profit = parseFloat(profitAmount) || 0;
+        const totalAdd = total + profit; 
+
+        if (!uid) {
+            return res.status(400).json({ success: false, message: 'UID required' });
+        }
+
+        const user = await User.findOne({ uid });
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        // यूजर का बैलेंस बढ़ाएं
+        user.balance = (user.balance || 0) + totalAdd;
+        await user.save();
+
+        // नया ऑर्डर रिकॉर्ड बनाएं
+        const newOrder = new Order({
+            orderId: `ORD${Math.floor(100000 + Math.random() * 900000)}`,
+            uid: user.uid,
+            userName: user.username || user.phone,
+            type: type || 'Task Order',
+            amount: `+${totalAdd.toFixed(2)}`,
+            desc: desc || `Order Purchased: ${total}, Total Credit: ${totalAdd}`,
+            status: 'approved',
+            category: 'task',
+            time: new Date().toISOString().replace('T', ' ').substring(0, 19)
+        });
+
+        await newOrder.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Order processed successfully!',
+            newBalance: user.balance
         });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
@@ -478,268 +562,11 @@ app.patch('/api/admin/orders/:orderId/status', adminAuth, async (req, res) => {
     }
 });
 
-app.get('/api/public/orders', async (req, res) => {
+app.get('/api/public/gateway-methods', async (req, res) => {
     try {
-        const search = (req.query.search || '').trim();
-        const status = (req.query.status || '').trim();
-        const category = req.query.category || '';
-        const query = {};
-
-        if (status) {
-            query.status = status;
-        }
-
-        if (category) {
-            query.category = category;
-        }
-
-        if (search) {
-            query.$or = [
-                { orderId: new RegExp(search, 'i') },
-                { utr: new RegExp(search, 'i') },
-                { uid: new RegExp(search, 'i') },
-                { userName: new RegExp(search, 'i') },
-                { phone: new RegExp(search, 'i') }
-            ];
-        }
-
-        const orders = await Order.find(query).sort({ _id: -1 });
-        res.status(200).json({ success: true, data: orders });
+        const gatewayMethods = await GatewayMethod.find({ isActive: true });
+        res.status(200).json({ success: true, data: gatewayMethods });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
-});
-
-app.patch('/api/public/orders/:orderId/status', async (req, res) => {
-    try {
-        const { orderId } = req.params;
-        const { status, utr, rejectReason } = req.body;
-        const order = await Order.findOne({ orderId });
-        if (!order) {
-            return res.status(404).json({ success: false, message: 'Order not found' });
-        }
-
-        const previousStatus = order.status;
-        if (utr !== undefined) {
-            order.utr = utr;
-        }
-        if (rejectReason !== undefined) {
-            order.rejectReason = rejectReason;
-        }
-        if (status) {
-            order.status = status;
-        }
-
-        await order.save();
-
-        if (status === 'approved' && previousStatus !== 'approved') {
-            const numericAmount = parseFloat(String(order.amount).replace(/[^0-9.-]+/g, '')) || 0;
-            if (numericAmount !== 0) {
-                await User.findOneAndUpdate({ uid: order.uid }, { $inc: { balance: numericAmount } });
-            }
-        }
-
-        res.status(200).json({ success: true, message: 'Order status updated', data: order });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
-app.get('/api/admin/history', adminAuth, async (req, res) => {
-    try {
-        const history = await Order.find({ category: 'recharge' }).sort({ _id: -1 });
-        res.status(200).json({ success: true, data: history });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
-app.get('/api/admin/token-history', adminAuth, async (req, res) => {
-    try {
-        const history = await Order.find({ category: 'token' }).sort({ _id: -1 });
-        res.status(200).json({ success: true, data: history });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
-app.get('/api/admin/bank-methods', adminAuth, async (req, res) => {
-    try {
-        const methods = await GatewayMethod.find().sort({ createdAt: -1 });
-        res.status(200).json({ success: true, data: methods });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
-app.post('/api/admin/bank-methods', adminAuth, async (req, res) => {
-    try {
-        const method = new GatewayMethod(req.body);
-        await method.save();
-        res.status(201).json({ success: true, data: method });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
-app.put('/api/admin/bank-methods/:id', adminAuth, async (req, res) => {
-    try {
-        const method = await GatewayMethod.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!method) {
-            return res.status(404).json({ success: false, message: 'Bank method not found' });
-        }
-        res.status(200).json({ success: true, data: method });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
-app.delete('/api/admin/bank-methods/:id', adminAuth, async (req, res) => {
-    try {
-        const method = await GatewayMethod.findByIdAndDelete(req.params.id);
-        if (!method) {
-            return res.status(404).json({ success: false, message: 'Bank method not found' });
-        }
-        res.status(200).json({ success: true, message: 'Bank method deleted' });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
-app.get('/api/admin/gateway-methods', adminAuth, async (req, res) => {
-    return res.status(200).json({ success: true, data: await GatewayMethod.find().sort({ createdAt: -1 }) });
-});
-
-app.post('/api/admin/gateway-methods', adminAuth, async (req, res) => {
-    return res.status(201).json({ success: true, data: await new GatewayMethod(req.body).save() });
-});
-
-app.put('/api/admin/gateway-methods/:id', adminAuth, async (req, res) => {
-    const method = await GatewayMethod.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!method) {
-        return res.status(404).json({ success: false, message: 'Bank method not found' });
-    }
-    return res.status(200).json({ success: true, data: method });
-});
-
-app.delete('/api/admin/gateway-methods/:id', adminAuth, async (req, res) => {
-    const method = await GatewayMethod.findByIdAndDelete(req.params.id);
-    if (!method) {
-        return res.status(404).json({ success: false, message: 'Bank method not found' });
-    }
-    return res.status(200).json({ success: true, message: 'Bank method deleted' });
-});
-
-// C. बैंक अकाउंट सेव करने की एपीआई (Bank Management API)
-app.post('/api/bank/save', async (req, res) => {
-    try {
-        const { phone, bankDetails } = req.body;
-
-        const user = await User.findOne({ phone });
-        if (!user) {
-            return res.status(404).json({ success: false, message: 'User not found!' });
-        }
-
-        user.banks.push(bankDetails);
-        await user.save();
-
-        res.status(200).json({ success: true, message: 'Bank details saved successfully!', banks: user.banks });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
-// D. गूगल ऑथेंटिकेटर बाइंड करने की एपीआई (Google Authenticator API)
-app.post('/api/auth/bind-ga', async (req, res) => {
-    try {
-        const { phone, secretKey } = req.body;
-
-        const user = await User.findOne({ phone });
-        if (!user) {
-            return res.status(404).json({ success: false, message: 'User not found!' });
-        }
-
-        user.gaSecretKey = secretKey;
-        user.isGaBound = true;
-        await user.save();
-
-        res.status(200).json({ success: true, message: 'Google Authenticator bound successfully!' });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
-// E. टास्क / रीचार्ज / आर्डर सबमिट करने की एपीआई (Task & Recharge History API)
-app.post('/api/create-order', async (req, res) => {
-    try {
-        const orderPayload = buildOrderPayload(req.body);
-        const savedOrder = await saveOrderRecord(orderPayload);
-
-        res.status(200).json({ success: true, message: 'Order created successfully!', data: savedOrder });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
-app.post('/api/order/submit', async (req, res) => {
-    try {
-        const orderPayload = buildOrderPayload(req.body);
-        const savedOrder = await saveOrderRecord(orderPayload);
-
-        if (orderPayload.status === 'success') {
-            const numericAmount = parseFloat(orderPayload.amount.replace(/[^0-9.-]+/g, '')) || 0;
-            if (numericAmount !== 0) {
-                await User.findOneAndUpdate({ uid: orderPayload.uid }, { $inc: { balance: numericAmount } });
-            }
-        }
-
-        res.status(200).json({ success: true, message: 'Task submitted and history updated successfully!', data: savedOrder });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
-app.post('/api/token/log', async (req, res) => {
-    try {
-        const tokenPayload = buildOrderPayload({
-            ...req.body,
-            category: 'token',
-            type: req.body.type || 'Receive',
-            status: req.body.status || 'success',
-            desc: req.body.desc || 'Token transaction logged'
-        });
-        const savedOrder = await saveOrderRecord(tokenPayload);
-
-        res.status(200).json({ success: true, message: 'Token history updated successfully!', data: savedOrder });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
-// F. टोकन हिस्ट्री / रीचार्ज हिस्ट्री फेच करने की एपीआई (Fetch History API)
-app.get('/api/history/:uid', async (req, res) => {
-    try {
-        const { uid } = req.params;
-        const historyList = await Order.find({ uid }).sort({ _id: -1 });
-        res.status(200).json({ success: true, data: historyList });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
-// G. टीम के सदस्यों को फेच करने की नई एपीआई (Fetch Team Members API)
-app.get('/api/team/:uid', async (req, res) => {
-    try {
-        const { uid } = req.params;
-        // डेटाबेस में से उन यूजर्स को ढूंढो जिनका invitedBy इस UID से मैच करता है
-        const teamMembers = await User.find({ invitedBy: uid }).select('uid phone balance createdAt -_id');
-        res.status(200).json({ success: true, count: teamMembers.length, data: teamMembers });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
-// सर्वर स्टार्ट करना
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
 });

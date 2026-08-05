@@ -99,43 +99,45 @@
         </div>
 
         <div class="container">
-        <div class="menu-card">
-            <a href="recharge_history.html" class="menu-item">
-                <div class="menu-left"><i class="fas fa-clock-rotate-left"></i> <span class="lang-recharge">Recharge History</span></div>
-                <div class="menu-right"><i class="fas fa-chevron-right" style="font-size: 12px;"></i></div>
-            </a>
-            <a href="token_history.html" class="menu-item">
-                <div class="menu-left"><i class="fas fa-file-invoice"></i> <span class="lang-token">Token History</span></div>
-                <div class="menu-right"><i class="fas fa-chevron-right" style="font-size: 12px;"></i></div>
-            </a>
-            <a href="bank.html" class="menu-item">
-                <div class="menu-left"><i class="fas fa-university"></i> <span class="lang-bank">Bank Account</span></div>
-                <div class="menu-right"><i class="fas fa-chevron-right" style="font-size: 12px;"></i></div>
-            </a>
-            <div class="menu-item" onclick="toggleLanguage()" style="cursor: pointer;">
-                <div class="menu-left"><i class="fas fa-globe"></i> <span class="lang-lang">Languages</span></div>
-                <div class="menu-right"><span id="currentLangLabel">English</span> <i class="fas fa-chevron-right" style="font-size: 12px;"></i></div>
-            </div>
-            <a href="google-authenticator.html" class="menu-item">
-                <div class="menu-left"><i class="fas fa-shield-halved"></i> <span class="lang-gauth">Google Authentication</span></div>
-                <div class="menu-right"><i class="fas fa-chevron-right" style="font-size: 12px;"></i></div>
-            </a>
-            <div class="menu-item" onclick="openSupportModal()" style="cursor: pointer;">
-                <div class="menu-left"><i class="fas fa-headset"></i> <span class="lang-contact">Contact Us</span></div>
-                <div class="menu-right"><i class="fas fa-chevron-right" style="font-size: 12px;"></i></div>
-            </div>
-            <div class="menu-item" onclick="openLogoutModal()" style="cursor: pointer;">
-                <div class="menu-left" style="color: #dc2626;"><i class="fas fa-sign-out-alt" style="color: #dc2626;"></i> <span class="lang-signout">Sign Out</span></div>
-                <div class="menu-right"><i class="fas fa-chevron-right" style="font-size: 12px;"></i></div>
+            <div class="menu-card">
+                <a href="recharge_history.html" class="menu-item">
+                    <div class="menu-left"><i class="fas fa-clock-rotate-left"></i> <span class="lang-recharge">Recharge History</span></div>
+                    <div class="menu-right"><i class="fas fa-chevron-right" style="font-size: 12px;"></i></div>
+                </a>
+                <a href="token_history.html" class="menu-item">
+                    <div class="menu-left"><i class="fas fa-file-invoice"></i> <span class="lang-token">Token History</span></div>
+                    <div class="menu-right"><i class="fas fa-chevron-right" style="font-size: 12px;"></i></div>
+                </a>
+                <a href="bank.html" class="menu-item">
+                    <div class="menu-left"><i class="fas fa-university"></i> <span class="lang-bank">Bank Account</span></div>
+                    <div class="menu-right"><i class="fas fa-chevron-right" style="font-size: 12px;"></i></div>
+                </a>
+                <div class="menu-item" onclick="toggleLanguage()" style="cursor: pointer;">
+                    <div class="menu-left"><i class="fas fa-globe"></i> <span class="lang-lang">Languages</span></div>
+                    <div class="menu-right"><span id="currentLangLabel">English</span> <i class="fas fa-chevron-right" style="font-size: 12px;"></i></div>
+                </div>
+                <a href="google-authenticator.html" class="menu-item">
+                    <div class="menu-left"><i class="fas fa-shield-halved"></i> <span class="lang-gauth">Google Authentication</span></div>
+                    <div class="menu-right"><i class="fas fa-chevron-right" style="font-size: 12px;"></i></div>
+                </a>
+                <div class="menu-item" onclick="openSupportModal()" style="cursor: pointer;">
+                    <div class="menu-left"><i class="fas fa-headset"></i> <span class="lang-contact">Contact Us</span></div>
+                    <div class="menu-right"><i class="fas fa-chevron-right" style="font-size: 12px;"></i></div>
+                </div>
+                <div class="menu-item" onclick="openLogoutModal()" style="cursor: pointer;">
+                    <div class="menu-left" style="color: #dc2626;"><i class="fas fa-sign-out-alt" style="color: #dc2626;"></i> <span class="lang-signout">Sign Out</span></div>
+                    <div class="menu-right"><i class="fas fa-chevron-right" style="font-size: 12px;"></i></div>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Contact Support Modal Sheet -->
     <div class="modal-overlay" id="supportModal" onclick="closeSupportModal(event)">
         <div class="support-sheet">
             <a href="https://t.me/Nrpayofficial" target="_blank" class="support-option">
                 <div class="support-icon telegram-bg"><i class="fab fa-telegram-plane"></i></div>
-                <span>Telegram</span>
+                <span class="support-label">Telegram</span>
             </a>
             <a href="https://www.youtube.com/@NRpayofficial" target="_blank" class="support-option">
                 <div class="support-icon youtube-bg"><i class="fab fa-youtube"></i></div>
@@ -144,11 +146,12 @@
             </a>
             <a href="https://wa.me/9862713447" target="_blank" class="support-option">
                 <div class="support-icon whatsapp-bg"><i class="fab fa-whatsapp"></i></div>
-                <span>Whatsapp</span>
+                <span class="support-label">WhatsApp</span>
             </a>
         </div>
     </div>
 
+    <!-- Logout Confirmation Modal -->
     <div class="modal-overlay" id="logoutModal" style="display: none; align-items: center;">
         <div class="confirm-modal" style="display: flex;">
             <div class="confirm-title" id="logoutTextMsg">Logging out of the current account will suspend all functions. Are you sure you want to log out ?</div>
@@ -159,6 +162,7 @@
         </div>
     </div>
 
+    <!-- Bottom Navigation Bar -->
     <nav class="bottom-nav">
         <a href="dashboard.html" class="nav-item">
             <i class="fas fa-home"></i>
@@ -183,7 +187,6 @@
     </nav>
 
     <script>
-        // पेज खुलते ही MongoDB से इस यूजर का असली डेटा फेच करेगा
         window.onload = function() {
             fetchUserData();
             checkSavedLanguage();
@@ -194,34 +197,16 @@
             const userUid = localStorage.getItem('userUid');
 
             if (!userPhone && !userUid) {
-                // अगर लॉगिन नहीं है तो लॉगिन पेज पर भेज दें
                 window.location.href = 'login.html';
                 return;
             }
 
-            try {
-                // बैकएंड से यूजर का लेटेस्ट डेटा लाने के लिए (हम फोन या UID से डेटा मंगवा सकते हैं)
-                // चूँकि लॉगिन पर हमने phone सेव किया है, हम एक छोटी सी API या लॉगिन जैसा रिस्पॉन्स इस्तेमाल कर सकते हैं
-                const response = await fetch('https://rn-pay.onrender.com/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ phone: userPhone, password: localStorage.getItem('userPassword') })
-                });
-                
-                // या सीधा डेटाबेस से फेच करने के लिए नया रूट भी बना सकते हैं, पर नीचे हम localStorage के UID से डायरेक्ट सेट कर रहे हैं:
-                document.getElementById('userIdDisplay').innerText = userUid || "20001";
-                
-                // बैलेंस लोड करने के लिए API कॉल करें या डेटाबेस से लाएं
-                loadDatabaseBalance(userPhone);
-
-            } catch (error) {
-                console.error("Error fetching user data:", error);
-            }
+            document.getElementById('userIdDisplay').innerText = userUid || "20001";
+            loadDatabaseBalance(userPhone);
         }
 
         async function loadDatabaseBalance(phone) {
             try {
-                // सर्वर से उस यूजर का डेटा निकालने के लिए फोन नंबर भेजेंगे
                 const res = await fetch('https://rn-pay.onrender.com/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -230,7 +215,9 @@
                 const result = await res.json();
                 if(result.success) {
                     document.getElementById('userBalance').innerHTML = result.balance.toFixed(2) + ' <span style="font-size: 18px; font-weight: normal;">INR</span>';
-                    document.getElementById('userIdDisplay').innerText = result.uid;
+                    if (result.uid) {
+                        document.getElementById('userIdDisplay').innerText = result.uid;
+                    }
                 }
             } catch(e) {
                 console.log("Balance fetch error", e);
